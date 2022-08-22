@@ -1,24 +1,20 @@
-# permissions for end users to edit redirecturisyncs.
+# permissions for end users to view replyurlsyncs.
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: redirecturisync-editor-role
+  name: replyurlsync-viewer-role
 rules:
 - apiGroups:
   - appregistrations.azure.hmcts.net
   resources:
-  - redirecturisyncs
+  - replyurlsyncs
   verbs:
-  - create
-  - delete
   - get
   - list
-  - patch
-  - update
   - watch
 - apiGroups:
   - appregistrations.azure.hmcts.net
   resources:
-  - redirecturisyncs/status
+  - replyurlsyncs/status
   verbs:
   - get

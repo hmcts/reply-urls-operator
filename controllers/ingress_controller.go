@@ -59,9 +59,9 @@ type IngressReconciler struct {
 func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	var (
 		//workerLog       = ctrl.Log
-		hosts           []string
-		ingress         = v1.Ingress{}
-		redirectUriSync = v1alpha1.RedirectUriSync{}
+		hosts        []string
+		ingress      = v1.Ingress{}
+		replyURLSync = v1alpha1.ReplyURLSync{}
 	)
 
 	_ = log.FromContext(ctx)
@@ -70,7 +70,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	if err != nil {
 		if errors.IsNotFound(err) {
-			result, err := r.cleanRedirectUriSyncList()
+			result, err := r.cleanReplyURLSyncList()
 			if err != nil {
 				return result, err
 			}
@@ -92,14 +92,14 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	redirectUriSyncList, err := r.listRedirectUriSync(ingressClassName)
+	replyURLSyncList, err := r.listReplyURLSync(ingressClassName)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-	// Find redirectUriSync with matching ingressClassName
-	for _, redirectUriSyncItem := range redirectUriSyncList.Items {
-		if *redirectUriSyncItem.Spec.IngressClassFilter == *ingressClassName {
-			redirectUriSync = redirectUriSyncItem
+	// Find replyURLSync with matching ingressClassName
+	for _, replyURLSyncItem := range replyURLSyncList.Items {
+		if *replyURLSyncItem.Spec.IngressClassFilter == *ingressClassName {
+			replyURLSync = replyURLSyncItem
 
 		} else {
 			return ctrl.Result{}, nil
@@ -107,13 +107,13 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	fnf := azureGraph.FieldNotFoundError{}
-	fnf.SetResource(redirectUriSync.Kind + "./" + redirectUriSync.Name)
+	fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
 
-	if !reflect2.IsNil(*redirectUriSync.Spec.DomainFilter) {
-		*redirectUriSync.Spec.DomainFilter = domainFilter
+	if !reflect2.IsNil(*replyURLSync.Spec.DomainFilter) {
+		*replyURLSync.Spec.DomainFilter = domainFilter
 	}
 
-	result, err := azureGraph.ProcessHost(hosts, redirectUriSync.Spec)
+	result, err := azureGraph.ProcessHost(hosts, replyURLSync.Spec)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -138,10 +138,10 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	redirectUriSync := &v1alpha1.RedirectUriSync{}
+	replyURLSync := &v1alpha1.ReplyURLSync{}
 
-	if err := mgr.GetFieldIndexer().IndexField(context.Background(), redirectUriSync, ingressClassFilterField, func(rawObj client.Object) []string {
-		ingressClass := rawObj.(*v1alpha1.RedirectUriSync).Spec.IngressClassFilter
+	if err := mgr.GetFieldIndexer().IndexField(context.Background(), replyURLSync, ingressClassFilterField, func(rawObj client.Object) []string {
+		ingressClass := rawObj.(*v1alpha1.ReplyURLSync).Spec.IngressClassFilter
 
 		if ingressClass == nil {
 			return []string{}
@@ -157,23 +157,23 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
-func (r *IngressReconciler) cleanRedirectUriSyncList() (result ctrl.Result, err error) {
+func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err error) {
 
 	var (
 		workerLog   = ctrl.Log
 		ingressList = v1.IngressList{}
 	)
 
-	redirectUriSyncList, err := r.listRedirectUriSync(nil)
+	replyURLSyncList, err := r.listReplyURLSync(nil)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 	/*
-		Compare current list of redirect uris and remove any of
+		Compare current list of redirect urls and remove any of
 		them that don't have a corresponding ingress host on
 		the cluster.
 	*/
-	for _, syncer := range redirectUriSyncList.Items {
+	for _, syncer := range replyURLSyncList.Items {
 		var opts []client.ListOption
 		syncSpec := syncer.Spec
 
@@ -214,18 +214,18 @@ func (r *IngressReconciler) cleanRedirectUriSyncList() (result ctrl.Result, err 
 	return ctrl.Result{}, nil
 }
 
-func (r *IngressReconciler) listRedirectUriSync(ingressClassName *string) (redirectUriSyncList *v1alpha1.RedirectUriSyncList, err error) {
+func (r *IngressReconciler) listReplyURLSync(ingressClassName *string) (replyURLSyncList *v1alpha1.ReplyURLSyncList, err error) {
 	var opts []client.ListOption
 	if ingressClassName != nil {
 		opts = []client.ListOption{
 			client.MatchingFields{ingressClassFilterField: *ingressClassName},
 		}
 	}
-	redirectUriSyncList = &v1alpha1.RedirectUriSyncList{}
+	replyURLSyncList = &v1alpha1.ReplyURLSyncList{}
 
-	err = r.List(context.TODO(), redirectUriSyncList, opts...)
+	err = r.List(context.TODO(), replyURLSyncList, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return redirectUriSyncList, nil
+	return replyURLSyncList, nil
 }

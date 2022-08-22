@@ -4,4 +4,4 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: $(CERTIFICATE_NAMESPACE)/$(CERTIFICATE_NAME)
-  name: redirecturisyncs.appregistrations.azure.hmcts.net
+  name: replyurlsyncs.appregistrations.azure.hmcts.net

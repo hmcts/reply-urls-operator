@@ -23,8 +23,8 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// RedirectUriSyncSpec defines the desired state of RedirectUriSync
-type RedirectUriSyncSpec struct {
+// ReplyURLSyncSpec defines the desired state of ReplyURLSync
+type ReplyURLSyncSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
@@ -34,8 +34,8 @@ type RedirectUriSyncSpec struct {
 	IngressClassFilter *string `json:"ingressClassFilter,omitempty"`
 }
 
-// RedirectUriSyncStatus defines the observed state of RedirectUriSync
-type RedirectUriSyncStatus struct {
+// ReplyURLStatus defines the observed state of ReplyURLSync
+type ReplyURLSyncStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 	SyncedHosts []string `json:"syncedHosts"`
@@ -44,24 +44,24 @@ type RedirectUriSyncStatus struct {
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// RedirectUriSync is the Schema for the redirecturisyncs API
-type RedirectUriSync struct {
+// ReplyURLSync is the Schema for the replyurlsyncs API
+type ReplyURLSync struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   RedirectUriSyncSpec   `json:"spec,omitempty"`
-	Status RedirectUriSyncStatus `json:"status,omitempty"`
+	Spec   ReplyURLSyncSpec   `json:"spec,omitempty"`
+	Status ReplyURLSyncStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// RedirectUriSyncList contains a list of RedirectUriSync
-type RedirectUriSyncList struct {
+// ReplyURLSyncList contains a list of ReplyURLSync
+type ReplyURLSyncList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []RedirectUriSync `json:"items"`
+	Items           []ReplyURLSync `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&RedirectUriSync{}, &RedirectUriSyncList{})
+	SchemeBuilder.Register(&ReplyURLSync{}, &ReplyURLSyncList{})
 }

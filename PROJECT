@@ -12,7 +12,7 @@ resources:
     namespaced: true
   domain: hmcts.net
   group: appregistrations.azure
-  kind: RedirectUriSync
+  kind: ReplyURLSync
   path: github.com/hmcts/reply-urls-operator/api/v1alpha1
   version: v1alpha1
 - controller: true

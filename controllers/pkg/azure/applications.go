@@ -19,21 +19,21 @@ func getApplication(appId string, graphClient *msgraphsdk.GraphServiceClient) (a
 	return application, err
 }
 
-func GetRedirectURIs(appId string, graphClient *msgraphsdk.GraphServiceClient) (redirectURIs []string, err error) {
+func GetReplyURLs(appId string, graphClient *msgraphsdk.GraphServiceClient) (replyURLs []string, err error) {
 	appObject, err := getApplication(appId, graphClient)
 	if err != nil {
 		return nil, err
 	}
-	redirectURIs = appObject.GetWeb().GetRedirectUris()
-	return redirectURIs, nil
+	replyURLs = appObject.GetWeb().GetRedirectUris()
+	return replyURLs, nil
 }
 
-func PatchAppRedirectURIs(appId string, uris []string, graphClient *msgraphsdk.GraphServiceClient) error {
+func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.GraphServiceClient) error {
 	// Patch Application
 	requestBody := graph.NewApplication()
 	app := graph.NewWebApplication()
 
-	app.SetRedirectUris(uris)
+	app.SetRedirectUris(urls)
 	requestBody.SetWeb(app)
 
 	err := graphClient.ApplicationsById(appId).Patch(requestBody)
@@ -60,35 +60,29 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		return nil, fnfErr
 	}
 
-	uris, err := GetRedirectURIs(*syncSpec.ClientID, azureAppClient)
+	urls, err := GetReplyURLs(*syncSpec.ClientID, azureAppClient)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, uri := range uris {
-		if swag.ContainsStrings(patchOptions.IngressHosts, uri) {
-			newRedirectURLS = append(newRedirectURLS, uri)
+	for _, url := range urls {
+		if swag.ContainsStrings(patchOptions.IngressHosts, url) {
+			newRedirectURLS = append(newRedirectURLS, url)
 		} else {
-			removedURLS = append(removedURLS, uri)
+			removedURLS = append(removedURLS, url)
 		}
 	}
 
-	if err := PatchAppRedirectURIs(*syncSpec.ClientID, newRedirectURLS, azureAppClient); err != nil {
+	if err := PatchAppReplyURLs(*syncSpec.ClientID, newRedirectURLS, azureAppClient); err != nil {
 		return nil, err
 	}
 	return removedURLS, nil
 }
 
-const (
-	//domainFilter            = ".*"
-	ingressClassNameField = "spec.ingressClassName"
-	//ingressClassFilterField = "spec.ingressClassFilter"
-)
-
-func ProcessHost(hosts []string, syncSpec v1alpha1.RedirectUriSyncSpec) (result ctrl.Result, err error) {
+func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctrl.Result, err error) {
 
 	var (
-		uris           []string
+		urls           []string
 		azureAppClient *msgraphsdk.GraphServiceClient
 		workerLog      = ctrl.Log
 	)
@@ -108,13 +102,13 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.RedirectUriSyncSpec) (result 
 
 		}
 
-		if uris, err = GetRedirectURIs(*syncSpec.ClientID, azureAppClient); err != nil {
+		if urls, err = GetReplyURLs(*syncSpec.ClientID, azureAppClient); err != nil {
 			return ctrl.Result{}, err
 		} else {
 			hostFormatted := fmt.Sprintf("https://%s", host)
-			if !swag.ContainsStrings(uris, hostFormatted) {
-				uris = append(uris, hostFormatted)
-				if err := PatchAppRedirectURIs(*syncSpec.ClientID, uris, azureAppClient); err != nil {
+			if !swag.ContainsStrings(urls, hostFormatted) {
+				urls = append(urls, hostFormatted)
+				if err := PatchAppReplyURLs(*syncSpec.ClientID, urls, azureAppClient); err != nil {
 					return ctrl.Result{}, err
 				}
 				workerLog.Info("Host added",

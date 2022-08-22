@@ -5,20 +5,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.9.0
   creationTimestamp: null
-  name: redirecturisyncs.appregistrations.azure.hmcts.net
+  name: replyurlsyncs.appregistrations.azure.hmcts.net
 spec:
   group: appregistrations.azure.hmcts.net
   names:
-    kind: RedirectUriSync
-    listKind: RedirectUriSyncList
-    plural: redirecturisyncs
-    singular: redirecturisync
+    kind: ReplyURLSync
+    listKind: ReplyURLSyncList
+    plural: replyurlsyncs
+    singular: replyurlsync
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: RedirectUriSync is the Schema for the redirecturisyncs API
+        description: ReplyURLSync is the Schema for the replyurlsyncs API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -33,7 +33,7 @@ spec:
           metadata:
             type: object
           spec:
-            description: RedirectUriSyncSpec defines the desired state of RedirectUriSync
+            description: ReplyURLSyncSpec defines the desired state of ReplyURLSync
             properties:
               clientID:
                 type: string
@@ -48,7 +48,7 @@ spec:
             - tenantID
             type: object
           status:
-            description: RedirectUriSyncStatus defines the observed state of RedirectUriSync
+            description: ReplyURLStatus defines the observed state of ReplyURLSync
             properties:
               syncedHosts:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state

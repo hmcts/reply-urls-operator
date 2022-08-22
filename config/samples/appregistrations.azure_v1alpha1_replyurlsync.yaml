@@ -1,0 +1,9 @@
+apiVersion: appregistrations.azure.hmcts.net/v1alpha1
+kind: ReplyURLSync
+metadata:
+  name: replyurlsync-sample
+spec:
+  ingressClassFilter: traefik
+  domainFilter: .*..sandbox.platform.hmcts.net
+  clientID:
+  tenantID:

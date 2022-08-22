@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: test-matt.sandbox.platform.hmcts.net
+  - host: test-matt.ssandbox.platform.hmcts.net
     http:
       paths:
       - backend:

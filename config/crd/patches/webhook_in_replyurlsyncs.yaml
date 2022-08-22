@@ -2,7 +2,7 @@
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  name: redirecturisyncs.appregistrations.azure.hmcts.net
+  name: replyurlsyncs.appregistrations.azure.hmcts.net
 spec:
   conversion:
     strategy: Webhook
