@@ -1,0 +1,5 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- appregistrations.azure_v1alpha1_redirecturisync.yaml
+- networking.k8s.io_v1_ingress.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

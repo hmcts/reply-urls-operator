@@ -1,0 +1,9 @@
+apiVersion: appregistrations.azure.hmcts.net/v1alpha1
+kind: RedirectUriSync
+metadata:
+  name: redirecturisync-sample
+spec:
+  ingressClassFilter: traefik
+  domainFilter: .*.sandbox.platform.hmcts.net
+  clientID: 3325da75-6f51-41fa-9392-d39187889518
+  tenantID: 531ff96d-0ae9-462a-8d2d-bec7c0b42082

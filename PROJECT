@@ -1,0 +1,23 @@
+domain: hmcts.net
+layout:
+- go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: reply-urls-operator
+repo: github.com/hmcts/reply-urls-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  domain: hmcts.net
+  group: appregistrations.azure
+  kind: RedirectUriSync
+  path: github.com/hmcts/reply-urls-operator/api/v1alpha1
+  version: v1alpha1
+- controller: true
+  domain: hmcts.net
+  group: networking.k8s.io
+  kind: Ingress
+  version: v1
+version: "3"
