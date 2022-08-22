@@ -31,7 +31,7 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
-#
+
 #      - uses: azure/login@v1
 #        with:
 #          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
