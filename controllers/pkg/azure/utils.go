@@ -3,21 +3,8 @@ package azureGraph
 import (
 	"fmt"
 	v1 "k8s.io/api/networking/v1"
-	"reflect"
 	"regexp"
-	"sort"
 )
-
-func SlicesMatch(a []string, b []string) (isMatch bool) {
-	sort.Strings(a)
-	sort.Strings(b)
-
-	if reflect.DeepEqual(a, b) {
-		return true
-	} else {
-		return false
-	}
-}
 
 func FilterIngresses(ingressList *v1.IngressList, domainFilter *string) (ingressHosts []string, err error) {
 	for _, ingressItem := range ingressList.Items {

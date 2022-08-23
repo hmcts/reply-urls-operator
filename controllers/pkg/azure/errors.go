@@ -7,7 +7,7 @@ type FieldNotFoundError struct {
 	Resource string
 }
 
-func (err FieldNotFoundError) Error() string {
+func (err *FieldNotFoundError) Error() string {
 	return fmt.Sprintf("Field '%s' is missing please add to your %s resource", err.Field, err.Resource)
 }
 

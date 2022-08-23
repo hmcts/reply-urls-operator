@@ -32,36 +32,43 @@ jobs:
           GOOS: linux
           GOARCH: amd64
 
-#      - uses: azure/login@v1
-#        with:
-#          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
+      - uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-#      - name: Load SDS vars
-#        run: |
-#          cat ${VAR_FILE} >> $GITHUB_ENV
-#        shell: bash
-#        env:
-#          VAR_FILE: ${{ env.VAR_FILE_PATH }}/sds.env
+      - name: Load SDS vars
+        run: |
+          cat ${VAR_FILE} >> $GITHUB_ENV
+        shell: bash
+        env:
+          VAR_FILE: ${{ env.VAR_FILE_PATH }}/sds.env
 
-#      - name: Get ACR Token
-#        uses: azure/CLI@v1
-#        with:
-#          inlineScript: |
-#            az account set --subscription ${{ env.CLUSTER_SUB }}
-#            sds_token=$(az acr login -n ${{ env.REGISTRY_NAME }} --expose-token | jq -r .accessToken)
-#            echo "SDS_ACR_TOKEN=${sds_token}" >> $GITHUB_ENV
-#      # Connect to Azure Container Registry (ACR)
-#      - uses: azure/docker-login@v1
-#        with:
-#          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-#          username: 00000000-0000-0000-0000-000000000000
-#          password: ${{ env.SDS_ACR_TOKEN }}
+      - name: Get ACR Token
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            az account set --subscription ${{ env.CLUSTER_SUB }}
+            sds_token=$(az acr login -n ${{ env.REGISTRY_NAME }} --expose-token | jq -r .accessToken)
+            echo "SDS_ACR_TOKEN=${sds_token}" >> $GITHUB_ENV
 
-#      # Container build and push to an Azure Container Registry (ACR)
-#      - name: Build and Push PR Container Image - SDS
-#        run: |
-#          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
-#        shell: bash
+      # Connect to Azure Container Registry (ACR)
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: 00000000-0000-0000-0000-000000000000
+          password: ${{ env.SDS_ACR_TOKEN }}
+
+      # Container build and push to an Azure Container Registry (ACR)
+      - name: Build PR Container Image - SDS
+        run: |
+          ./scripts/docker.sh build pr-${{ env.GITHUB_EVENT_NUMBER }}
+        shell: bash
+
+      # Container build and push to an Azure Container Registry (ACR)
+      - name: Push PR Container Image - SDS
+        run: |
+          ./scripts/docker.sh push pr-${{ env.GITHUB_EVENT_NUMBER }}
+        shell: bash
 #
 #      - name: Load CFT vars
 #        run: |
