@@ -7,7 +7,7 @@ ACTION=$1
 # build / push
 BUILD=$2
 
-ACR_REPO=${REGISTRY_NAME}.azurecr.io/${PRODUCT}/${APP_NAME}
+ACR_REPO=${REGISTRY_NAME}.azurecr.io/${APP_NAME}
 
 if [[ ${BUILD} =~ ^pr-.* ]]; then
   if [[ ${ACTION} == "build" ]]; then
