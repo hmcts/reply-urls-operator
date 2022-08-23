@@ -47,7 +47,6 @@ jobs:
         uses: azure/CLI@v1
         with:
           inlineScript: |
-            az account set --subscription ${{ env.CLUSTER_SUB }}
             sds_token=$(az acr login -n ${{ env.REGISTRY_NAME }} --expose-token | jq -r .accessToken)
             echo "SDS_ACR_TOKEN=${sds_token}" >> $GITHUB_ENV
 
