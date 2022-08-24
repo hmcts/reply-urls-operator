@@ -100,8 +100,10 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	replyURLSyncList, err := r.listReplyURLSync(ingressClassName)
 	if err != nil {
 		return ctrl.Result{}, err
-	} else if replyURLSyncList == nil {
-		workerLog.Info("replyurlsync resources not found")
+	} else if len(replyURLSyncList.Items) == 0 {
+		workerLog.Info("Missing configuration",
+			"resource not found", "redirecturisyncs.appregistrations.azure.hmcts.net",
+		)
 		return ctrl.Result{}, nil
 	}
 
