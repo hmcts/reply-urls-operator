@@ -36,6 +36,11 @@ const (
 	ingressClassFilterField = "spec.ingressClassFilter"
 )
 
+var (
+	workerLog   = ctrl.Log
+	ingressList = v1.IngressList{}
+)
+
 // IngressReconciler reconciles an Ingress object
 type IngressReconciler struct {
 	client.Client
@@ -95,7 +100,11 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	replyURLSyncList, err := r.listReplyURLSync(ingressClassName)
 	if err != nil {
 		return ctrl.Result{}, err
+	} else if replyURLSyncList == nil {
+		workerLog.Info("replyurlsync resources not found")
+		return ctrl.Result{}, nil
 	}
+
 	// Find replyURLSync with matching ingressClassName
 	for _, replyURLSyncItem := range replyURLSyncList.Items {
 		if *replyURLSyncItem.Spec.IngressClassFilter == *ingressClassName {
@@ -158,11 +167,6 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 }
 
 func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err error) {
-
-	var (
-		workerLog   = ctrl.Log
-		ingressList = v1.IngressList{}
-	)
 
 	replyURLSyncList, err := r.listReplyURLSync(nil)
 	if err != nil {
