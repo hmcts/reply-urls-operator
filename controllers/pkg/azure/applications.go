@@ -52,15 +52,15 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		return nil, err
 	}
 
-	if syncSpec.ClientID == nil {
+	if syncSpec.ObjectID == nil {
 		fnfErr := FieldNotFoundError{
-			Field:    ".spec.clientID",
+			Field:    ".spec.objectID",
 			Resource: syncerResource,
 		}
 		return nil, fnfErr
 	}
 
-	urls, err := GetReplyURLs(*syncSpec.ClientID, azureAppClient)
+	urls, err := GetReplyURLs(*syncSpec.ObjectID, azureAppClient)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		}
 	}
 
-	if err := PatchAppReplyURLs(*syncSpec.ClientID, newRedirectURLS, azureAppClient); err != nil {
+	if err := PatchAppReplyURLs(*syncSpec.ObjectID, newRedirectURLS, azureAppClient); err != nil {
 		return nil, err
 	}
 	return removedURLS, nil
@@ -102,18 +102,18 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 
 		}
 
-		if urls, err = GetReplyURLs(*syncSpec.ClientID, azureAppClient); err != nil {
+		if urls, err = GetReplyURLs(*syncSpec.ObjectID, azureAppClient); err != nil {
 			return ctrl.Result{}, err
 		} else {
 			hostFormatted := fmt.Sprintf("https://%s", host)
 			if !swag.ContainsStrings(urls, hostFormatted) {
 				urls = append(urls, hostFormatted)
-				if err := PatchAppReplyURLs(*syncSpec.ClientID, urls, azureAppClient); err != nil {
+				if err := PatchAppReplyURLs(*syncSpec.ObjectID, urls, azureAppClient); err != nil {
 					return ctrl.Result{}, err
 				}
 				workerLog.Info("Host added",
 					"host", hostFormatted,
-					"object id", *syncSpec.ClientID, "ingressClassName", *syncSpec.IngressClassFilter)
+					"object id", *syncSpec.ObjectID, "ingressClassName", *syncSpec.IngressClassFilter)
 			}
 		}
 	}
