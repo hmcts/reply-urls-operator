@@ -30,6 +30,7 @@ type ReplyURLSyncSpec struct {
 
 	TenantID           *string `json:"tenantID"`
 	ClientID           *string `json:"clientID"`
+	ObjectID           *string `json:"objectID"`
 	DomainFilter       *string `json:"domainFilter,omitempty"`
 	IngressClassFilter *string `json:"ingressClassFilter,omitempty"`
 }

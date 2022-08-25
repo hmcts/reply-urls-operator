@@ -97,6 +97,11 @@ func (in *ReplyURLSyncSpec) DeepCopyInto(out *ReplyURLSyncSpec) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ObjectID != nil {
+		in, out := &in.ObjectID, &out.ObjectID
+		*out = new(string)
+		**out = **in
+	}
 	if in.DomainFilter != nil {
 		in, out := &in.DomainFilter, &out.DomainFilter
 		*out = new(string)
