@@ -41,10 +41,13 @@ spec:
                 type: string
               ingressClassFilter:
                 type: string
+              objectID:
+                type: string
               tenantID:
                 type: string
             required:
             - clientID
+            - objectID
             - tenantID
             type: object
           status:
