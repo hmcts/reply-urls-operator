@@ -35,6 +35,13 @@ spec:
         image: sdshmctspublic.azurecr.io/reply-urls-operator:pr-5
         imagePullPolicy: Always
         name: manager
+        env:
+          - name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: reply-urls-operator
+                key:  azure-client-secret
+                optional: false
         securityContext:
           allowPrivilegeEscalation: false
         # TODO(user): uncomment for common cases that do not require escalating privileges

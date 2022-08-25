@@ -25,6 +25,7 @@ import (
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -116,6 +117,9 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, nil
 		}
 	}
+
+	os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID)
+	os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID)
 
 	fnf := azureGraph.FieldNotFoundError{}
 	fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
@@ -211,7 +215,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 
 		workerLog.Info("Host removed",
 			"hosts", removedURLS,
-			"object id", *syncSpec.ClientID,
+			"object id", *syncSpec.ObjectID,
 			"ingressClassName", *syncSpec.IngressClassFilter,
 		)
 
