@@ -118,12 +118,26 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 	}
 
-	os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID)
-	os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID)
+	if replyURLSync.Spec.ClientID != nil {
+		os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID)
+	} else {
+		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
+		return ctrl.Result{}, nil
+	}
 
-	fnf := azureGraph.FieldNotFoundError{}
-	fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
+	if replyURLSync.Spec.TenantID != nil {
+		os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID)
+	} else {
+		workerLog.Info("Missing configuration", "TenantID was not found in sync config")
+		return ctrl.Result{}, nil
+	}
 
+	if replyURLSync.Spec.ObjectID == nil {
+		fnf := azureGraph.FieldNotFoundError{}
+		fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
+		fnf.SetField(".spec.objectID")
+		return ctrl.Result{}, fnf
+	}
 	if !reflect2.IsNil(*replyURLSync.Spec.DomainFilter) {
 		*replyURLSync.Spec.DomainFilter = domainFilter
 	}
@@ -194,6 +208,27 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			}
 		}
 
+		if syncSpec.ClientID != nil {
+			os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID)
+		} else {
+			workerLog.Info("Environment Variable Missing", "AZURE_CLIENT_ID")
+			return ctrl.Result{}, nil
+		}
+
+		if syncSpec.TenantID != nil {
+			os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID)
+		} else {
+			workerLog.Info("Environment Variable Missing", "AZURE_TENANT_ID")
+			return ctrl.Result{}, nil
+		}
+
+		if syncSpec.ObjectID == nil {
+			fnf := azureGraph.FieldNotFoundError{}
+			fnf.SetResource(syncer.Kind + "./" + syncer.Name)
+			fnf.SetField(".spec.objectID")
+			return ctrl.Result{}, fnf
+		}
+
 		err = r.List(context.TODO(), &ingressList, opts...)
 		if err != nil {
 			fmt.Println(err)
@@ -213,12 +248,13 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			return ctrl.Result{}, err
 		}
 
-		workerLog.Info("Host removed",
-			"hosts", removedURLS,
-			"object id", *syncSpec.ObjectID,
-			"ingressClassName", *syncSpec.IngressClassFilter,
-		)
-
+		if removedURLS != nil {
+			workerLog.Info("Host removed",
+				"hosts", removedURLS,
+				"object id", *syncSpec.ObjectID,
+				"ingressClassName", *syncSpec.IngressClassFilter,
+			)
+		}
 	}
 
 	return ctrl.Result{}, nil

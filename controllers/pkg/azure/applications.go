@@ -44,9 +44,11 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 }
 
 func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err error) {
-	syncSpec := patchOptions.Syncer.Spec
-	syncerResource := patchOptions.Syncer.Name
+	syncer := patchOptions.Syncer
+	syncSpec := syncer.Spec
+	syncerFullResourceName := syncer.Name
 	var newRedirectURLS []string
+
 	azureAppClient, err := CreateClient()
 	if err != nil {
 		return nil, err
@@ -55,7 +57,7 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 	if syncSpec.ObjectID == nil {
 		fnfErr := FieldNotFoundError{
 			Field:    ".spec.objectID",
-			Resource: syncerResource,
+			Resource: syncerFullResourceName,
 		}
 		return nil, fnfErr
 	}
@@ -71,6 +73,10 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		} else {
 			removedURLS = append(removedURLS, url)
 		}
+	}
+
+	if len(removedURLS) == 0 {
+		return nil, nil
 	}
 
 	if err := PatchAppReplyURLs(*syncSpec.ObjectID, newRedirectURLS, azureAppClient); err != nil {
