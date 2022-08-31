@@ -25,6 +25,7 @@ import (
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"os"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -34,6 +35,11 @@ const (
 	domainFilter            = ".*"
 	ingressClassNameField   = "spec.ingressClassName"
 	ingressClassFilterField = "spec.ingressClassFilter"
+)
+
+var (
+	workerLog   = ctrl.Log
+	ingressList = v1.IngressList{}
 )
 
 // IngressReconciler reconciles an Ingress object
@@ -95,7 +101,13 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	replyURLSyncList, err := r.listReplyURLSync(ingressClassName)
 	if err != nil {
 		return ctrl.Result{}, err
+	} else if len(replyURLSyncList.Items) == 0 {
+		workerLog.Info("Missing configuration",
+			"resource not found", "redirecturisyncs.appregistrations.azure.hmcts.net",
+		)
+		return ctrl.Result{}, nil
 	}
+
 	// Find replyURLSync with matching ingressClassName
 	for _, replyURLSyncItem := range replyURLSyncList.Items {
 		if *replyURLSyncItem.Spec.IngressClassFilter == *ingressClassName {
@@ -106,9 +118,26 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 	}
 
-	fnf := azureGraph.FieldNotFoundError{}
-	fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
+	if replyURLSync.Spec.ClientID != nil {
+		os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID)
+	} else {
+		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
+		return ctrl.Result{}, nil
+	}
 
+	if replyURLSync.Spec.TenantID != nil {
+		os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID)
+	} else {
+		workerLog.Info("Missing configuration", "TenantID was not found in sync config")
+		return ctrl.Result{}, nil
+	}
+
+	if replyURLSync.Spec.ObjectID == nil {
+		fnf := azureGraph.FieldNotFoundError{}
+		fnf.SetResource(replyURLSync.Kind + "./" + replyURLSync.Name)
+		fnf.SetField(".spec.objectID")
+		return ctrl.Result{}, fnf
+	}
 	if !reflect2.IsNil(*replyURLSync.Spec.DomainFilter) {
 		*replyURLSync.Spec.DomainFilter = domainFilter
 	}
@@ -159,11 +188,6 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err error) {
 
-	var (
-		workerLog   = ctrl.Log
-		ingressList = v1.IngressList{}
-	)
-
 	replyURLSyncList, err := r.listReplyURLSync(nil)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -182,6 +206,27 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			opts = []client.ListOption{
 				client.MatchingFields{ingressClassNameField: *syncSpec.IngressClassFilter},
 			}
+		}
+
+		if syncSpec.ClientID != nil {
+			os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID)
+		} else {
+			workerLog.Info("Environment Variable Missing", "AZURE_CLIENT_ID")
+			return ctrl.Result{}, nil
+		}
+
+		if syncSpec.TenantID != nil {
+			os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID)
+		} else {
+			workerLog.Info("Environment Variable Missing", "AZURE_TENANT_ID")
+			return ctrl.Result{}, nil
+		}
+
+		if syncSpec.ObjectID == nil {
+			fnf := azureGraph.FieldNotFoundError{}
+			fnf.SetResource(syncer.Kind + "./" + syncer.Name)
+			fnf.SetField(".spec.objectID")
+			return ctrl.Result{}, fnf
 		}
 
 		err = r.List(context.TODO(), &ingressList, opts...)
@@ -203,12 +248,13 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			return ctrl.Result{}, err
 		}
 
-		workerLog.Info("Host removed",
-			"hosts", removedURLS,
-			"object id", *syncSpec.ClientID,
-			"ingressClassName", *syncSpec.IngressClassFilter,
-		)
-
+		if removedURLS != nil {
+			workerLog.Info("Host removed",
+				"hosts", removedURLS,
+				"object id", *syncSpec.ObjectID,
+				"ingressClassName", *syncSpec.IngressClassFilter,
+			)
+		}
 	}
 
 	return ctrl.Result{}, nil

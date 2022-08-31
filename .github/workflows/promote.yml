@@ -1,0 +1,47 @@
+name: Promote Keda test app
+
+on:
+  pull_request:
+    types:
+      - closed
+env:
+  # Common vars
+  GITHUB_EVENT_NUMBER: ${{ github.event.number }}
+  APP_NAME: recipe-receiver
+  VAR_FILE_PATH: ${{ github.workspace }}/.github/workflows
+
+jobs:
+  promote:
+    if: github.event.pull_request.merged == true
+    strategy:
+      matrix:
+        project: ["sds"] #["sds", "cft"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+
+      # Load Project environment variables
+      - name: Load ${{ matrix.project }} vars
+        run: |
+          cat ${VAR_FILE} >> $GITHUB_ENV
+        shell: bash
+        env:
+          VAR_FILE: ${{ github.workspace }}/.github/workflows/${{ matrix.project }}.env
+
+      - uses: azure/login@v1
+        with:
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+
+
+      # Container build and push to an Azure Container Registry (ACR)
+      - name: Promote PR Image to Prod
+        run: |
+          ./scripts/docker.sh prod
+        shell: bash
+        if: ${{ success() }}
+
+      - name: Az logout
+        run: |
+          az logout
+        shell: bash
+        if: ${{ always() }}

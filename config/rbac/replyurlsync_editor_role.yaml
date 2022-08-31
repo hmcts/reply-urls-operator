@@ -4,21 +4,31 @@ kind: ClusterRole
 metadata:
   name: replyurlsync-editor-role
 rules:
-- apiGroups:
-  - appregistrations.azure.hmcts.net
-  resources:
-  - replyurlsyncs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - appregistrations.azure.hmcts.net
-  resources:
-  - replyurlsyncs/status
-  verbs:
-  - get
+  - apiGroups:
+      - networking.k8s.io
+    resources:
+      - ingress
+    verbs:
+      - get
+      - list
+      - watch
+
+  - apiGroups:
+    - appregistrations.azure.hmcts.net
+    resources:
+    - replyurlsyncs
+    verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+
+  - apiGroups:
+    - appregistrations.azure.hmcts.net
+    resources:
+    - replyurlsyncs/status
+    verbs:
+    - get

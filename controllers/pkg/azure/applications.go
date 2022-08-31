@@ -44,23 +44,25 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 }
 
 func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err error) {
-	syncSpec := patchOptions.Syncer.Spec
-	syncerResource := patchOptions.Syncer.Name
+	syncer := patchOptions.Syncer
+	syncSpec := syncer.Spec
+	syncerFullResourceName := syncer.Name
 	var newRedirectURLS []string
+
 	azureAppClient, err := CreateClient()
 	if err != nil {
 		return nil, err
 	}
 
-	if syncSpec.ClientID == nil {
+	if syncSpec.ObjectID == nil {
 		fnfErr := FieldNotFoundError{
-			Field:    ".spec.clientID",
-			Resource: syncerResource,
+			Field:    ".spec.objectID",
+			Resource: syncerFullResourceName,
 		}
 		return nil, fnfErr
 	}
 
-	urls, err := GetReplyURLs(*syncSpec.ClientID, azureAppClient)
+	urls, err := GetReplyURLs(*syncSpec.ObjectID, azureAppClient)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +75,11 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		}
 	}
 
-	if err := PatchAppReplyURLs(*syncSpec.ClientID, newRedirectURLS, azureAppClient); err != nil {
+	if len(removedURLS) == 0 {
+		return nil, nil
+	}
+
+	if err := PatchAppReplyURLs(*syncSpec.ObjectID, newRedirectURLS, azureAppClient); err != nil {
 		return nil, err
 	}
 	return removedURLS, nil
@@ -102,18 +108,18 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 
 		}
 
-		if urls, err = GetReplyURLs(*syncSpec.ClientID, azureAppClient); err != nil {
+		if urls, err = GetReplyURLs(*syncSpec.ObjectID, azureAppClient); err != nil {
 			return ctrl.Result{}, err
 		} else {
 			hostFormatted := fmt.Sprintf("https://%s", host)
 			if !swag.ContainsStrings(urls, hostFormatted) {
 				urls = append(urls, hostFormatted)
-				if err := PatchAppReplyURLs(*syncSpec.ClientID, urls, azureAppClient); err != nil {
+				if err := PatchAppReplyURLs(*syncSpec.ObjectID, urls, azureAppClient); err != nil {
 					return ctrl.Result{}, err
 				}
 				workerLog.Info("Host added",
 					"host", hostFormatted,
-					"object id", *syncSpec.ClientID, "ingressClassName", *syncSpec.IngressClassFilter)
+					"object id", *syncSpec.ObjectID, "ingressClassName", *syncSpec.IngressClassFilter)
 			}
 		}
 	}

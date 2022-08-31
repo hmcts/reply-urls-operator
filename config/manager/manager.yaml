@@ -1,28 +1,22 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    control-plane: controller-manager
-  name: system
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: controller-manager
-  namespace: system
+  name: operator
+  namespace: admin
   labels:
-    control-plane: controller-manager
+    control-plane: reply-urls-operator
 spec:
   selector:
     matchLabels:
-      control-plane: controller-manager
+      control-plane: reply-urls-operator
   replicas: 1
   template:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
       labels:
-        control-plane: controller-manager
+        control-plane: reply-urls-operator
     spec:
       securityContext:
         runAsNonRoot: true
@@ -36,10 +30,18 @@ spec:
       containers:
       - command:
         - /manager
-        args:
-        - --leader-elect
-        image: controller:latest
+#        args:
+#        - --leader-elect
+        image: sdshmctspublic.azurecr.io/reply-urls-operator:pr-5
+        imagePullPolicy: Always
         name: manager
+        env:
+          - name: AZURE_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: reply-urls-operator
+                key:  azure-client-secret
+                optional: false
         securityContext:
           allowPrivilegeEscalation: false
         # TODO(user): uncomment for common cases that do not require escalating privileges
@@ -67,5 +69,5 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
-      serviceAccountName: controller-manager
+      serviceAccountName: reply-urls-operator
       terminationGracePeriodSeconds: 10
