@@ -5,51 +5,43 @@ metadata:
   creationTimestamp: null
   name: operator-role
 rules:
-  - apiGroups:
-    - networking.k8s.io
-    resources:
-    - ingresses
-    verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-    - watch
-
-  - apiGroups:
-    - networking.k8s.io
-    resources:
-    - ingresses/finalizers
-    verbs:
-    - update
-
-  - apiGroups:
-    - networking.k8s.io
-    resources:
-    - ingresses/status
-    verbs:
-    - get
-    - patch
-    - update
-
-  - apiGroups:
-      - appregistrations.azure.hmcts.net
-    resources:
-      - replyurlsyncs
-    verbs:
-      - create
-      - delete
-      - get
-      - list
-      - patch
-      - update
-      - watch
-
-  - apiGroups:
-      - appregistrations.azure.hmcts.net
-    resources:
-      - replyurlsyncs/status
-    verbs:
-      - get
+- apiGroups:
+  - appregistrations.azure.hmcts.net
+  resources:
+  - replyurlsyncs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - appregistrations.azure.hmcts.net
+  resources:
+  - replyurlsyncs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - appregistrations.azure.hmcts.net
+  resources:
+  - replyurlsyncs/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  verbs:
+  - get
