@@ -22,12 +22,6 @@ jobs:
       - name: Download Envtest
         run: make envtest
 
-      - name: Run Go fmt, vet and test
-        run: make test
-        env:
-          GOOS: linux
-          GOARCH: amd64
-
       # Build recipe-receiver app
       - name: Build
         run: go build -v -a -o manager main.go
@@ -35,6 +29,12 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
+
+      - name: Run Go fmt, vet and test
+        run: make test
+        env:
+          GOOS: linux
+          GOARCH: amd64
 
       - uses: azure/login@v1
         with:
