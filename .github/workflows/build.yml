@@ -28,12 +28,13 @@ jobs:
           GOOS: linux
           GOARCH: amd64
 
-#      # Build recipe-receiver app
-#      - name: Build
-#        run: go build -v .
-#        env:
-#          GOOS: linux
-#          GOARCH: amd64
+      # Build recipe-receiver app
+      - name: Build
+        run: go build -v -a -o manager main.go
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          CGO_ENABLED: 0
 
       - uses: azure/login@v1
         with:
