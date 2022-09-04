@@ -8,7 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
 	github.com/go-openapi/swag v0.19.14
 	github.com/microsoft/kiota-authentication-azure-go v0.3.1
-	github.com/microsoftgraph/msgraph-sdk-go v0.34.0
+	github.com/microsoftgraph/msgraph-sdk-go v0.37.0
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.19.0
 	k8s.io/api v0.25.0
