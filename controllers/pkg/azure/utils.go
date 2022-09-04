@@ -22,3 +22,15 @@ func FilterIngresses(ingressList *v1.IngressList, domainFilter *string) (ingress
 	}
 	return ingressHosts, nil
 }
+
+func FilterStringList(stringList []string, filter string) (filteredStringList []string, err error) {
+	for _, s := range stringList {
+		if matchesFilter, err := regexp.MatchString(filter, s); err != nil {
+			return nil, err
+
+		} else if matchesFilter {
+			filteredStringList = append(filteredStringList, s)
+		}
+	}
+	return filteredStringList, nil
+}
