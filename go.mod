@@ -1,6 +1,6 @@
 module github.com/hmcts/reply-urls-operator
 
-go 1.18
+go 1.19
 
 replace github.com/microsoftgraph/msgraph-sdk-go => github.com/msl8r/msgraph-sdk-go v0.0.6
 
