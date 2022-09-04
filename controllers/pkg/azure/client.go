@@ -7,6 +7,21 @@ import (
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
 )
 
+func GraphAuth() (graphCreds *a.AzureIdentityAuthenticationProvider, err error) {
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		fmt.Printf("Error with credentials: %v", err)
+		return nil, err
+	}
+
+	auth, err := a.NewAzureIdentityAuthenticationProviderWithScopes(cred, []string{"https://graph.microsoft.com/.default"})
+	if err != nil {
+		fmt.Printf("Error authentication provider: %v\n", err)
+		return auth, err
+	}
+	return auth, nil
+}
+
 func CreateClient() (client *msgraphsdk.GraphServiceClient, error error) {
 	auth, err := GraphAuth()
 	if err != nil {
@@ -21,19 +36,4 @@ func CreateClient() (client *msgraphsdk.GraphServiceClient, error error) {
 	}
 	graphClient := msgraphsdk.NewGraphServiceClient(adapter)
 	return graphClient, nil
-}
-
-func GraphAuth() (graphCreds *a.AzureIdentityAuthenticationProvider, err error) {
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
-	if err != nil {
-		fmt.Printf("Error with credentials: %v", err)
-		return nil, err
-	}
-
-	auth, err := a.NewAzureIdentityAuthenticationProviderWithScopes(cred, []string{"https://graph.microsoft.com/.default"})
-	if err != nil {
-		fmt.Printf("Error authentication provider: %v\n", err)
-		return auth, err
-	}
-	return auth, nil
 }

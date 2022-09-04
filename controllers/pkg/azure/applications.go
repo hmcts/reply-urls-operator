@@ -6,7 +6,6 @@ import (
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
 	graph "github.com/microsoftgraph/msgraph-sdk-go/models"
-	"regexp"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
@@ -97,16 +96,12 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 		return ctrl.Result{}, err
 	}
 
-	for _, host := range hosts {
+	filteredHosts, err := FilterStringList(hosts, *syncSpec.DomainFilter)
+	if err != nil {
+		workerLog.Error(err, "Unable to filter lists")
+	}
 
-		if isMatch, err := regexp.MatchString(*syncSpec.DomainFilter, host); err != nil {
-			return ctrl.Result{}, err
-
-		} else if !isMatch {
-			// Host doesn't match filter so it can be ignored
-			return ctrl.Result{}, nil
-
-		}
+	for _, host := range filteredHosts {
 
 		if urls, err = GetReplyURLs(*syncSpec.ObjectID, azureAppClient); err != nil {
 			return ctrl.Result{}, err

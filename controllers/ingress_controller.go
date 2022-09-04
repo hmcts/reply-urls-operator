@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
-	"github.com/modern-go/reflect2"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,14 +31,14 @@ import (
 )
 
 const (
-	domainFilter            = ".*"
 	ingressClassNameField   = "spec.ingressClassName"
 	ingressClassFilterField = "spec.ingressClassFilter"
 )
 
 var (
-	workerLog   = ctrl.Log
-	ingressList = v1.IngressList{}
+	defaultDomainFilter = ".*"
+	workerLog           = ctrl.Log
+	ingressList         = v1.IngressList{}
 )
 
 // IngressReconciler reconciles an Ingress object
@@ -48,9 +47,11 @@ type IngressReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-//+kubebuilder:rbac:groups=networking.k8s.io.hmcts.net,resources=ingresses,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=networking.k8s.io.hmcts.net,resources=ingresses/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=networking.k8s.io.hmcts.net,resources=ingresses/finalizers,verbs=update
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses/status,verbs=get
+//+kubebuilder:rbac:groups=appregistrations.azure.hmcts.net,resources=replyurlsyncs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=appregistrations.azure.hmcts.net,resources=replyurlsyncs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=appregistrations.azure.hmcts.net,resources=replyurlsyncs/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -138,8 +139,8 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		fnf.SetField(".spec.objectID")
 		return ctrl.Result{}, fnf
 	}
-	if !reflect2.IsNil(*replyURLSync.Spec.DomainFilter) {
-		*replyURLSync.Spec.DomainFilter = domainFilter
+	if replyURLSync.Spec.DomainFilter == nil {
+		replyURLSync.Spec.DomainFilter = &defaultDomainFilter
 	}
 
 	result, err := azureGraph.ProcessHost(hosts, replyURLSync.Spec)
