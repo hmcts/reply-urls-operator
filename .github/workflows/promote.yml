@@ -1,4 +1,4 @@
-name: Promote Keda test app
+name: Promote Reply URLs operator image
 
 on:
   pull_request:
