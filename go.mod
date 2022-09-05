@@ -6,7 +6,7 @@ replace github.com/microsoftgraph/msgraph-sdk-go => github.com/msl8r/msgraph-sdk
 
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.1.0
-	github.com/go-openapi/swag v0.19.14
+	github.com/go-openapi/swag v0.22.3
 	github.com/microsoft/kiota-authentication-azure-go v0.3.1
 	github.com/microsoftgraph/msgraph-sdk-go v0.37.0
 	github.com/onsi/ginkgo v1.16.5
@@ -54,7 +54,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/mailru/easyjson v0.7.6 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/microsoft/kiota-abstractions-go v0.8.2 // indirect
 	github.com/microsoft/kiota-http-go v0.5.2 // indirect
