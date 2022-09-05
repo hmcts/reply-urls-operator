@@ -96,7 +96,7 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 		return ctrl.Result{}, err
 	}
 
-	filteredHosts, err := FilterStringList(hosts, *syncSpec.DomainFilter)
+	filteredHosts, err := FilterAndFormatStringList(hosts, *syncSpec.DomainFilter)
 	if err != nil {
 		workerLog.Error(err, "Unable to filter lists")
 	}

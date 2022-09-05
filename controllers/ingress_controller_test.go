@@ -173,9 +173,9 @@ var _ = Describe("ReplyURLSync Config", func() {
 	})
 
 	expectedHosts := []string{
-		"https://test-app-1.sandbox.platform.hmcts.net",
-		"https://test-app-2.sandbox.platform.hmcts.net",
-		"https://test-app-5.sandbox.platform.hmcts.net",
+		"https://test-app-1.sandbox.platform.hmcts.net/oauth-proxy/callback",
+		"https://test-app-2.sandbox.platform.hmcts.net/oauth-proxy/callback",
+		"https://test-app-5.sandbox.platform.hmcts.net/oauth-proxy/callback",
 	}
 	sort.Strings(expectedHosts)
 
