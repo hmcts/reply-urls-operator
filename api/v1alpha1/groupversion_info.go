@@ -15,8 +15,8 @@ limitations under the License.
 */
 
 // Package v1alpha1 contains API Schema definitions for the appregistrations.azure v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=appregistrations.azure.hmcts.net
+// +kubebuilder:object:generate=true
+// +groupName=appregistrations.azure.hmcts.net
 package v1alpha1
 
 import (
