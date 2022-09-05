@@ -32,7 +32,7 @@ spec:
         - /manager
 #        args:
 #        - --leader-elect
-        image: sdshmctspublic.azurecr.io/reply-urls-operator:pr-5
+        image: sdshmctspublic.azurecr.io/reply-urls-operator:prod-c4620b7-20220905093200
         imagePullPolicy: Always
         name: manager
         env:
