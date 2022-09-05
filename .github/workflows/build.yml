@@ -106,6 +106,7 @@ jobs:
         if: always()
         with:
           report_paths: './report.xml'
+          include_passed: true
 
       - name: Az logout
         run: |
