@@ -107,7 +107,8 @@ jobs:
         with:
           report_paths: './report.xml'
           include_passed: true
-
+          fail_on_failure: true
+          require_tests: true
       - name: Az logout
         run: |
           az logout
