@@ -101,8 +101,14 @@ jobs:
 #          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
 #        shell: bash
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: './report.xml'
+
       - name: Az logout
         run: |
           az logout
         shell: bash
-        if: ${{ always() }}
+        if: always()
