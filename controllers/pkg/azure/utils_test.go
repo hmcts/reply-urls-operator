@@ -39,11 +39,11 @@ func TestFilterIngresses(t *testing.T) {
 	}
 	domainFilter := ".*.sandbox.platform.hmcts.net"
 	expectedList := []string{
-		"https://test-app-2.sandbox.platform.hmcts.net",
-		"https://test-app-4.sandbox.platform.hmcts.net",
+		"https://test-app-2.sandbox.platform.hmcts.net/oauth-proxy/callback",
+		"https://test-app-4.sandbox.platform.hmcts.net/oauth-proxy/callback",
 	}
 
-	if list, _ := FilterIngresses(&ingressList, &domainFilter); !reflect.DeepEqual(list, expectedList) {
+	if list, _ := FilterAndFormatIngresses(&ingressList, &domainFilter); !reflect.DeepEqual(list, expectedList) {
 		t.Errorf("Result %v not equal to the expected result %v\nTest: %s\n",
 			list, expectedList, strings.ToLower(t.Name()))
 	}
@@ -66,7 +66,7 @@ func TestFilterStringList(t *testing.T) {
 		"test-app-6.sandbox.platform.hmcts.net",
 	}
 
-	if returnedStringList, _ := FilterStringList(stringList, filter); !reflect.DeepEqual(returnedStringList, expectedStringList) {
+	if returnedStringList, _ := FilterAndFormatStringList(stringList, filter); !reflect.DeepEqual(returnedStringList, expectedStringList) {
 		t.Errorf("Result %v not equal to the expected result %v\nTest: %s\n",
 			returnedStringList, expectedStringList, strings.ToLower(t.Name()))
 	}
