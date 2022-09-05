@@ -17,7 +17,7 @@ if [[ ${BUILD} =~ ^pr-.* ]]; then
   else
     echo "Action $ACTION not found. build and push are valid actions"
   fi
-elif [[ ${BUILD} == "prod" ]]; then
+elif [[ ${ACTION} == "promote" ]]; then
   TAG="prod-$(git show --no-patch --no-notes --pretty=format:"%h-%ad" --date=format:'%Y%m%d%H%M%S' "${GITHUB_SHA}")"
   echo "Promoting ${ACR_REPO}:pr-${GITHUB_EVENT_NUMBER} to ${ACR_REPO}:${TAG}"
   az acr import --force -n "${REGISTRY_NAME}" --subscription "${REGISTRY_SUB}" --source "${ACR_REPO}:pr-${GITHUB_EVENT_NUMBER}" -t "${APP_NAME}:${TAG}"
