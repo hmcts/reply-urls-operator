@@ -7,7 +7,7 @@ on:
 env:
   # Common vars
   GITHUB_EVENT_NUMBER: ${{ github.event.number }}
-  APP_NAME: recipe-receiver
+  APP_NAME: reply-urls-operator
   VAR_FILE_PATH: ${{ github.workspace }}/.github/workflows
 
 jobs:
