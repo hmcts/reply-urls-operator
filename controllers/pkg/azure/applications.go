@@ -106,7 +106,7 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 		if urls, err = GetReplyURLs(*syncSpec.ObjectID, azureAppClient); err != nil {
 			return ctrl.Result{}, err
 		} else {
-			hostFormatted := fmt.Sprintf("https://%s", host)
+			hostFormatted := fmt.Sprintf("https://%s/oauth-proxy/callback", host)
 			if !swag.ContainsStrings(urls, hostFormatted) {
 				urls = append(urls, hostFormatted)
 				if err := PatchAppReplyURLs(*syncSpec.ObjectID, urls, azureAppClient); err != nil {
