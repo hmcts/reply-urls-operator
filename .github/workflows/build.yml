@@ -109,6 +109,14 @@ jobs:
           include_passed: true
           fail_on_failure: true
           require_tests: true
+
+      - name: Test Summary
+        uses: test-summary/action@v1
+        with:
+          paths: |
+            ${{ env.MICROSERVICE_LOCATION }}/report.xml
+        if: always()
+
       - name: Az logout
         run: |
           az logout
