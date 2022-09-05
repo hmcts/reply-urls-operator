@@ -19,8 +19,10 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Download Envtest
-        run: make envtest
+      - name: Download Test tools
+        run: |
+          make envtest
+          go install github.com/jstemmer/go-junit-report@latest
 
       # Build Reply URLs Operator
       - name: Build
