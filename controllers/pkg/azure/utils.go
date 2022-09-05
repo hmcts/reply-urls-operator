@@ -16,7 +16,7 @@ func FilterIngresses(ingressList *v1.IngressList, domainFilter *string) (ingress
 			}
 
 			// If ingress host matches domain regex add it to the list of ingresses that should be managed
-			ingressHosts = append(ingressHosts, fmt.Sprintf("https://%s", rule.Host))
+			ingressHosts = append(ingressHosts, fmt.Sprintf("https://%s/oauth-proxy/callback", rule.Host))
 
 		}
 	}
