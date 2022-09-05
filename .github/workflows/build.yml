@@ -114,7 +114,7 @@ jobs:
         uses: test-summary/action@v1
         with:
           paths: |
-            ${{ env.MICROSERVICE_LOCATION }}/report.xml
+            ./report.xml
         if: always()
 
       - name: Az logout
