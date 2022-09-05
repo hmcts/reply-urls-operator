@@ -36,7 +36,7 @@ jobs:
       # Container build and push to an Azure Container Registry (ACR)
       - name: Promote PR Image to Prod
         run: |
-          ./scripts/docker.sh prod
+          ./scripts/docker.sh promote
         shell: bash
         if: ${{ success() }}
 

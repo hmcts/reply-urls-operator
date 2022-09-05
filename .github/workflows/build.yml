@@ -22,7 +22,7 @@ jobs:
       - name: Download Envtest
         run: make envtest
 
-      # Build recipe-receiver app
+      # Build Reply URLs Operator
       - name: Build
         run: go build -v -a -o manager main.go
         env:
