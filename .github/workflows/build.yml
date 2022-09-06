@@ -113,14 +113,14 @@ jobs:
       - name: Test Summary
         uses: test-summary/action@v1
         with:
-          output: "test-report.txt"
+          output: "test-summary.txt"
           paths: |
             ./report.xml
         if: always()
 
       - name: Create output from test report
         run: |
-          OUTPUT="$(cat report.xml)"
+          OUTPUT="$(cat test-summary.txt)"
           echo "::set-output name=comment::$OUTPUT"
         shell: bash
         id: prComment
