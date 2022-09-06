@@ -107,6 +107,7 @@ jobs:
         with:
           report_paths: './report.xml'
           fail_on_failure: true
+          include_passed: true
           require_tests: true
 
       - name: Test Summary
