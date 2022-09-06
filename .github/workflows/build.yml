@@ -113,9 +113,23 @@ jobs:
       - name: Test Summary
         uses: test-summary/action@v1
         with:
+          output: "test-report.txt"
           paths: |
             ./report.xml
         if: always()
+
+      - name: Create output from test report
+        run: |
+          OUTPUT="$(cat report.xml)"
+          echo "::set-output name=comment::$OUTPUT"
+        shell: bash
+        id: prComment
+
+      - uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: Test Results
+          message: |
+            ${{ steps.prComment.outputs.message }}
 
       - name: Az logout
         run: |
