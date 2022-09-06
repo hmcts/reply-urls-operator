@@ -101,21 +101,12 @@ jobs:
 #          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
 #        shell: bash
 
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          report_paths: './report.xml'
-          include_passed: true
-          fail_on_failure: true
-          require_tests: true
-
-      - name: Test Summary
-        uses: test-summary/action@v1
-        with:
-          paths: |
-            ./report.xml
-        if: always()
+          junit_files: "report.xml"
+          comment_mode: always
 
       - name: Az logout
         run: |
