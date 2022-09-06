@@ -101,36 +101,6 @@ jobs:
 #          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
 #        shell: bash
 
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v3
-        if: always()
-        with:
-          report_paths: './report.xml'
-          fail_on_failure: true
-          include_passed: true
-          require_tests: true
-
-      - name: Test Summary
-        uses: test-summary/action@v1
-        with:
-          output: "test-summary.txt"
-          paths: |
-            ./report.xml
-        if: always()
-
-      - name: Create output from test report
-        run: |
-          OUTPUT="$(cat test-summary.txt)"
-          echo "::set-output name=comment::$OUTPUT"
-        shell: bash
-        id: prComment
-
-      - uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: Test Results
-          message: |
-            ${{ steps.prComment.outputs.comment }}
-
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
