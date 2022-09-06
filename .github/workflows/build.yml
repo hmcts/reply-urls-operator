@@ -133,6 +133,6 @@ jobs:
 
       - name: Az logout
         run: |
-         az logout
+          az logout
         shell: bash
         if: always()
