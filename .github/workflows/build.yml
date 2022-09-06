@@ -131,6 +131,13 @@ jobs:
           message: |
             ${{ steps.prComment.outputs.comment }}
 
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: "report.xml"
+          comment_mode: always
+
       - name: Az logout
         run: |
           az logout
