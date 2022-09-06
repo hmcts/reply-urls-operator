@@ -78,9 +78,6 @@ var _ = Describe("ReplyURLSync Config", func() {
 	)
 
 	clientSecret := os.Getenv("TESTING_AZURE_CLIENT_SECRET")
-	//tenantID := os.Getenv("TESTING_AZURE_TENANT_ID")
-	//clientID := os.Getenv("TESTING_AZURE_CLIENT_ID")
-	//objectID := os.Getenv("TESTING_AZURE_OBJECT_ID")
 
 	os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
 	os.Setenv("AZURE_TENANT_ID", tenantID)
