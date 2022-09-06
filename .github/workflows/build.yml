@@ -106,7 +106,6 @@ jobs:
         if: always()
         with:
           report_paths: './report.xml'
-          include_passed: true
           fail_on_failure: true
           require_tests: true
 
@@ -131,8 +130,8 @@ jobs:
           message: |
             ${{ steps.prComment.outputs.comment }}
 
-      - name: Az logout
-        run: |
-          az logout
-        shell: bash
-        if: always()
+#      - name: Az logout
+#        run: |
+#          az logout
+#        shell: bash
+#        if: always()
