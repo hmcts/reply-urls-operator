@@ -235,7 +235,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			fmt.Println(err)
 		}
 
-		ingresses, err := azureGraph.FilterIngresses(&ingressList, syncSpec.DomainFilter)
+		ingresses, err := azureGraph.FilterAndFormatIngresses(&ingressList, syncSpec.DomainFilter)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

@@ -51,7 +51,8 @@ spec:
             - tenantID
             type: object
           status:
-            description: ReplyURLStatus defines the observed state of ReplyURLSync
+            description: ReplyURLSyncStatus ReplyURLStatus defines the observed state
+              of ReplyURLSync
             properties:
               syncedHosts:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state

@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func FilterIngresses(ingressList *v1.IngressList, domainFilter *string) (ingressHosts []string, err error) {
+func FilterAndFormatIngresses(ingressList *v1.IngressList, domainFilter *string) (ingressHosts []string, err error) {
 	for _, ingressItem := range ingressList.Items {
 		for _, rule := range ingressItem.Spec.Rules {
 			if isMatch, err := regexp.MatchString(*domainFilter, rule.Host); err != nil {
@@ -23,7 +23,7 @@ func FilterIngresses(ingressList *v1.IngressList, domainFilter *string) (ingress
 	return ingressHosts, nil
 }
 
-func FilterStringList(stringList []string, filter string) (filteredStringList []string, err error) {
+func FilterAndFormatStringList(stringList []string, filter string) (filteredStringList []string, err error) {
 	for _, s := range stringList {
 		if matchesFilter, err := regexp.MatchString(filter, s); err != nil {
 			return nil, err
