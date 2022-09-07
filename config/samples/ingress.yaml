@@ -1,17 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: test-ingress-matt
-  namespace: toffee
+  # Ingress used to test ingresses with ingressClassName in it's spec
+  name: reply-urls-ingressclass-spec
+  namespace: default
 spec:
   ingressClassName: traefik
   rules:
-  - host: test-matt.ssandbox.platform.hmcts.net
+  - host: reply-urls-ingressclass.demo.platform.hmcts.net
     http:
       paths:
       - backend:
           service:
-            name: toffee-frontend-nodejs
+            name: reply-urls-demo
             port:
               number: 80
         path: /
