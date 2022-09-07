@@ -136,14 +136,18 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	if replyURLSync.Spec.ClientID != nil {
-		os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID)
+		if err = os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID); err != nil {
+			return ctrl.Result{}, err
+		}
 	} else {
 		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
 		return ctrl.Result{}, nil
 	}
 
 	if replyURLSync.Spec.TenantID != nil {
-		os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID)
+		if err = os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID); err != nil {
+			return ctrl.Result{}, err
+		}
 	} else {
 		workerLog.Info("Missing configuration", "TenantID was not found in sync config")
 		return ctrl.Result{}, nil
@@ -226,14 +230,18 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		}
 
 		if syncSpec.ClientID != nil {
-			os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID)
+			if err = os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID); err != nil {
+				return ctrl.Result{}, err
+			}
 		} else {
 			workerLog.Info("Environment Variable Missing", "AZURE_CLIENT_ID")
 			return ctrl.Result{}, nil
 		}
 
 		if syncSpec.TenantID != nil {
-			os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID)
+			if err = os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID); err != nil {
+				return ctrl.Result{}, err
+			}
 		} else {
 			workerLog.Info("Environment Variable Missing", "AZURE_TENANT_ID")
 			return ctrl.Result{}, nil
