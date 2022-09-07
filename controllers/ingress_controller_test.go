@@ -2,9 +2,12 @@ package controllers
 
 import (
 	"context"
-	appregistrationsazurev1alpha1 "github.com/hmcts/reply-urls-operator/api/v1alpha1"
+	"fmt"
+	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
 	v1 "k8s.io/api/networking/v1"
+	"k8s.io/utils/strings/slices"
+	"math/rand"
 	"os"
 	"sort"
 	"time"
@@ -16,42 +19,29 @@ import (
 )
 
 var (
-	clientID     = "2816f198-4c26-48bb-8732-e4ca72926ba7"
-	objectID     = "850e80c0-e09e-489d-b12d-5e80cd1bca6a"
-	tenantID     = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
-	domainFilter = ".*sandbox.platform.hmcts.net"
-	ingressClass = "traefik"
+	clientID              = "2816f198-4c26-48bb-8732-e4ca72926ba7"
+	objectID              = "850e80c0-e09e-489d-b12d-5e80cd1bca6a"
+	tenantID              = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
+	domainFilter          = ".*sandbox.platform.hmcts.net"
+	ingressClass          = "traefik"
+	replyURLSyncName      = "test-reply-url-sync"
+	replyURLSyncNamespace = "default"
 
-	testIngresses = []ingresses{
-		{
-			name:             "test-app-1",
-			host:             "test-app-1.sandbox.platform.hmcts.net",
-			ingressClassName: ingressClass,
+	replyURLSync = &v1alpha1.ReplyURLSync{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "appregistrations.azure.hmcts.net/v1alpha1",
+			Kind:       "ReplyURLSync",
 		},
-		{
-			name:             "test-app-2",
-			host:             "test-app-2.sandbox.platform.hmcts.net",
-			ingressClassName: ingressClass,
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      replyURLSyncName,
+			Namespace: replyURLSyncNamespace,
 		},
-		{
-			name:             "test-app-3",
-			host:             "test-app-3.sandbox.platform.hmcts.net",
-			ingressClassName: "private",
-		},
-		{
-			name:             "test-app-4",
-			host:             "test-app-4.staging.platform.hmcts.net",
-			ingressClassName: "private",
-		},
-		{
-			name:             "test-app-5",
-			host:             "test-app-5.sandbox.platform.hmcts.net",
-			ingressClassName: ingressClass,
-		},
-		{
-			name:             "test-app-6",
-			host:             "test-app-6.staging.platform.hmcts.net",
-			ingressClassName: "private",
+		Spec: v1alpha1.ReplyURLSyncSpec{
+			TenantID:           &tenantID,
+			ObjectID:           &objectID,
+			ClientID:           &clientID,
+			DomainFilter:       &domainFilter,
+			IngressClassFilter: &ingressClass,
 		},
 	}
 )
@@ -70,9 +60,6 @@ var _ = Describe("ReplyURLSync Config", func() {
 
 	// Define utility constants for object names and testing timeouts/durations and intervals.
 	const (
-		replyURLSyncName      = "test-reply-url-sync"
-		replyURLSyncNamespace = "default"
-
 		timeout  = time.Second * 10
 		interval = time.Millisecond * 250
 	)
@@ -83,31 +70,62 @@ var _ = Describe("ReplyURLSync Config", func() {
 	os.Setenv("AZURE_TENANT_ID", tenantID)
 	os.Setenv("AZURE_CLIENT_ID", clientID)
 
+	// Test run ID is used to identify which urls to manage in tests
+
+	testRunID, found := os.LookupEnv("GITHUB_EVENT_NUMBER")
+	if found == false {
+		testRunID = fmt.Sprintf("%d", rand.Intn(100))
+	}
+
+	var (
+		expectedURLS = []string{
+			"https://test-app-1-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+			"https://test-app-2-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+			"https://test-app-5-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+		}
+
+		testIngresses = []ingresses{
+			{
+				name:             "test-app-1",
+				host:             fmt.Sprintf("test-app-1-%s.sandbox.platform.hmcts.net", testRunID),
+				ingressClassName: ingressClass,
+			},
+			{
+				name:             "test-app-2",
+				host:             fmt.Sprintf("test-app-2-%s.sandbox.platform.hmcts.net", testRunID),
+				ingressClassName: ingressClass,
+			},
+			{
+				name:             "test-app-3",
+				host:             fmt.Sprintf("test-app-3-%s.ithc.platform.hmcts.net", testRunID),
+				ingressClassName: "private",
+			},
+			{
+				name:             "test-app-4",
+				host:             fmt.Sprintf("test-app-4-%s.staging.platform.hmcts.net", testRunID),
+				ingressClassName: "private",
+			},
+			{
+				name:             "test-app-5",
+				host:             fmt.Sprintf("test-app-5-%s.sandbox.platform.hmcts.net", testRunID),
+				ingressClassName: ingressClass,
+			},
+			{
+				name:             "test-app-6",
+				host:             fmt.Sprintf("test-app-6-%s.platform.hmcts.net", testRunID),
+				ingressClassName: "private",
+			},
+		}
+	)
 	Context("When creating a replyURLSync", func() {
 		It("It should get created", func() {
 			By("By creating a new replyURLSync")
 			ctx := context.Background()
-			replyURLSync := &appregistrationsazurev1alpha1.ReplyURLSync{
-				TypeMeta: metav1.TypeMeta{
-					APIVersion: "appregistrations.azure.hmcts.net/v1alpha1",
-					Kind:       "ReplyURLSync",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      replyURLSyncName,
-					Namespace: replyURLSyncNamespace,
-				},
-				Spec: appregistrationsazurev1alpha1.ReplyURLSyncSpec{
-					TenantID:           &tenantID,
-					ObjectID:           &objectID,
-					ClientID:           &clientID,
-					DomainFilter:       &domainFilter,
-					IngressClassFilter: &ingressClass,
-				},
-			}
+
 			Expect(k8sClient.Create(ctx, replyURLSync)).Should(Succeed())
 
 			replyURLSyncLookupKey := types.NamespacedName{Name: replyURLSyncName, Namespace: replyURLSyncNamespace}
-			createdReplyURLSync := &appregistrationsazurev1alpha1.ReplyURLSync{}
+			createdReplyURLSync := &v1alpha1.ReplyURLSync{}
 
 			// We'll need to retry getting this newly created CronJob, given that creation may not immediately happen.
 			Eventually(func() bool {
@@ -123,6 +141,54 @@ var _ = Describe("ReplyURLSync Config", func() {
 			Expect(createdReplyURLSync.Spec.TenantID).Should(Equal(&tenantID))
 			Expect(createdReplyURLSync.Spec.IngressClassFilter).Should(Equal(&ingressClass))
 			Expect(createdReplyURLSync.Spec.DomainFilter).Should(Equal(&domainFilter))
+
+		})
+	})
+
+	Context("When creating a new reply url sync resource", func() {
+		It("The app registrations list of urls for the pr should be empty", func() {
+			By("By cleaning up the list")
+			appRegPatchOptions := azureGraph.PatchOptions{
+				IngressHosts: []string{""},
+				Syncer:       *replyURLSync,
+			}
+
+			client, err := azureGraph.CreateClient()
+			if err != nil {
+				panic(err)
+			}
+
+			replyURLS, err := azureGraph.GetReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, client)
+			if err != nil {
+				panic(err)
+			}
+
+			var cleanedReplyURLS []string
+			for _, url := range replyURLS {
+				if !slices.Contains(expectedURLS, url) {
+					cleanedReplyURLS = append(cleanedReplyURLS, url)
+				}
+			}
+
+			azureGraph.PatchAppReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, cleanedReplyURLS, client)
+			if err != nil {
+				panic(err)
+			}
+
+			Eventually(func() []string {
+				var foundURLS = make([]string, 0)
+				replyURLS, err := azureGraph.GetReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, client)
+				if err != nil {
+					panic(err)
+				}
+
+				for _, url := range expectedURLS {
+					if slices.Contains(replyURLS, url) {
+						foundURLS = append(foundURLS, url)
+					}
+				}
+				return foundURLS
+			}, timeout, interval).Should(Equal([]string{}))
 
 		})
 	})
@@ -169,19 +235,14 @@ var _ = Describe("ReplyURLSync Config", func() {
 		})
 	})
 
-	expectedHosts := []string{
-		"https://test-app-1.sandbox.platform.hmcts.net/oauth-proxy/callback",
-		"https://test-app-2.sandbox.platform.hmcts.net/oauth-proxy/callback",
-		"https://test-app-5.sandbox.platform.hmcts.net/oauth-proxy/callback",
-	}
-	sort.Strings(expectedHosts)
-
 	Context("When running the operator", func() {
 
 		It("should update the list of reply urls on the app registration", func() {
 			By("checking the ingresses on the cluster")
 
-			Eventually(func() []string {
+			sort.Strings(expectedURLS)
+
+			Eventually(func() (foundURLS []string) {
 				client, _ := azureGraph.CreateClient()
 				// Need to look at
 				//if err != nil {
@@ -192,9 +253,14 @@ var _ = Describe("ReplyURLSync Config", func() {
 				//if err != nil {
 				//	return err
 				//}
+				for _, url := range expectedURLS {
+					if slices.Contains(replyURLHosts, url) {
+						foundURLS = append(foundURLS, url)
+					}
+				}
 
-				return replyURLHosts
-			}, timeout, interval).Should(Equal(expectedHosts))
+				return foundURLS
+			}, timeout, interval).Should(Equal(expectedURLS))
 
 		})
 
