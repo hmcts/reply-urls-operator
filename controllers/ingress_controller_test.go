@@ -235,12 +235,12 @@ var _ = Describe("ReplyURLSync Config", func() {
 		})
 	})
 
-	sort.Strings(expectedURLS)
-
 	Context("When running the operator", func() {
 
 		It("should update the list of reply urls on the app registration", func() {
 			By("checking the ingresses on the cluster")
+
+			sort.Strings(expectedURLS)
 
 			Eventually(func() (foundURLS []string) {
 				client, _ := azureGraph.CreateClient()
