@@ -1,6 +1,13 @@
 name: Build Operator
 
-on: pull_request
+on:
+  pull_request:
+    paths-ignore:
+      - .github/**
+      - config/**
+      - hack/**
+      - scripts/**
+
 
 env:
   # Common vars

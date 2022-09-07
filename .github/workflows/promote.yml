@@ -4,6 +4,12 @@ on:
   pull_request:
     types:
       - closed
+    paths-ignore:
+      - .github/**
+      - config/**
+      - hack/**
+      - scripts/**
+
 env:
   # Common vars
   GITHUB_EVENT_NUMBER: ${{ github.event.number }}
