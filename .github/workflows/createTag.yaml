@@ -20,7 +20,7 @@ jobs:
         id: tagVersion
         run: |
           version=$(echo "${{ env.GITHUB_EVENT_NUMBER }} 100" | awk '{printf "%.2f", $1 / $2}')
-          ::set-output name=::$version
+          ::set-output name=tagVersion::$version
 
       - uses: rickstaa/action-create-tag@v1
         with:
