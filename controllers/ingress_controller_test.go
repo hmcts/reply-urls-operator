@@ -66,9 +66,19 @@ var _ = Describe("ReplyURLSync Config", func() {
 
 	clientSecret := os.Getenv("TESTING_AZURE_CLIENT_SECRET")
 
-	os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
-	os.Setenv("AZURE_TENANT_ID", tenantID)
-	os.Setenv("AZURE_CLIENT_ID", clientID)
+	err := os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
+	if err != nil {
+		workerLog.Error(err, "Test Error")
+	}
+
+	err = os.Setenv("AZURE_TENANT_ID", tenantID)
+	if err != nil {
+		workerLog.Error(err, "Test Error")
+	}
+	err = os.Setenv("AZURE_CLIENT_ID", clientID)
+	if err != nil {
+		workerLog.Error(err, "Test Error")
+	}
 
 	// Test run ID is used to identify which urls to manage in tests
 
@@ -155,12 +165,12 @@ var _ = Describe("ReplyURLSync Config", func() {
 
 			client, err := azureGraph.CreateClient()
 			if err != nil {
-				panic(err)
+				workerLog.Error(err, "Test Error")
 			}
 
 			replyURLS, err := azureGraph.GetReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, client)
 			if err != nil {
-				panic(err)
+				workerLog.Error(err, "Test Error")
 			}
 
 			var cleanedReplyURLS []string
@@ -170,16 +180,16 @@ var _ = Describe("ReplyURLSync Config", func() {
 				}
 			}
 
-			azureGraph.PatchAppReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, cleanedReplyURLS, client)
+			err = azureGraph.PatchAppReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, cleanedReplyURLS, client)
 			if err != nil {
-				panic(err)
+				workerLog.Error(err, "Test Error")
 			}
 
 			Eventually(func() []string {
 				var foundURLS = make([]string, 0)
 				replyURLS, err := azureGraph.GetReplyURLs(*appRegPatchOptions.Syncer.Spec.ObjectID, client)
 				if err != nil {
-					panic(err)
+					workerLog.Error(err, "Test Error")
 				}
 
 				for _, url := range expectedURLS {
@@ -243,16 +253,18 @@ var _ = Describe("ReplyURLSync Config", func() {
 			sort.Strings(expectedURLS)
 
 			Eventually(func() (foundURLS []string) {
-				client, _ := azureGraph.CreateClient()
-				// Need to look at
-				//if err != nil {
-				//	return err
-				//}
+				client, err := azureGraph.CreateClient()
+				if err != nil {
+					workerLog.Error(err, "Test Error")
+				}
+
 				replyURLHosts, _ := azureGraph.GetReplyURLs(objectID, client)
-				sort.Strings(replyURLHosts)
-				//if err != nil {
-				//	return err
-				//}
+
+				if err != nil {
+					workerLog.Error(err, "Test Error")
+				}
+
+				//sort.Strings(replyURLHosts)
 				for _, url := range expectedURLS {
 					if slices.Contains(replyURLHosts, url) {
 						foundURLS = append(foundURLS, url)
