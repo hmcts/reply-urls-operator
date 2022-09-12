@@ -45,10 +45,14 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 }
 
 func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err error) {
-	syncer := patchOptions.Syncer
-	syncSpec := syncer.Spec
-	syncerFullResourceName := syncer.Name
-	var newRedirectURLS []string
+	var (
+		newRedirectURLS []string
+
+		syncer                 = patchOptions.Syncer
+		syncSpec               = syncer.Spec
+		syncerFullResourceName = syncer.Name
+		replyURLFilter         = syncSpec.ReplyURLFilter
+	)
 
 	azureAppClient, err := CreateClient()
 	if err != nil {
@@ -79,10 +83,10 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 				If it is set and the url matches with the filter delete it
 				If it is set and the url doesn't match do not delete it
 			*/
-			if patchOptions.replyURLFilter == "" {
+			if replyURLFilter == nil {
 				removedURLS = append(removedURLS, url)
 			} else {
-				if matched, err := regexp.MatchString(patchOptions.replyURLFilter, url); err != nil {
+				if matched, err := regexp.MatchString(*replyURLFilter, url); err != nil {
 					return nil, err
 				} else if matched {
 					removedURLS = append(removedURLS, url)

@@ -43,6 +43,8 @@ spec:
                 type: string
               objectID:
                 type: string
+              replyURLFilter:
+                type: string
               tenantID:
                 type: string
             required:

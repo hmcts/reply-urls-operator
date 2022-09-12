@@ -33,6 +33,7 @@ type ReplyURLSyncSpec struct {
 	ObjectID           *string `json:"objectID"`
 	DomainFilter       *string `json:"domainFilter,omitempty"`
 	IngressClassFilter *string `json:"ingressClassFilter,omitempty"`
+	ReplyURLFilter     *string `json:"replyURLFilter,omitempty"`
 }
 
 // ReplyURLSyncStatus ReplyURLStatus defines the observed state of ReplyURLSync

@@ -75,7 +75,8 @@ var _ = Describe("ReplyURLSync Config", func() {
 	}
 
 	var (
-		domainFilter = testRunID + ".*sandbox.platform.hmcts.net"
+		domainFilter   = ".*" + testRunID + ".sandbox.platform.hmcts.net"
+		replyURLFilter = ".*" + testRunID + ".sandbox.platform.hmcts.net"
 
 		replyURLSync = &v1alpha1.ReplyURLSync{
 			TypeMeta: metav1.TypeMeta{
@@ -91,6 +92,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 				ObjectID:           &objectID,
 				ClientID:           &clientID,
 				DomainFilter:       &domainFilter,
+				ReplyURLFilter:     &replyURLFilter,
 				IngressClassFilter: &ingressClass,
 			},
 		}
