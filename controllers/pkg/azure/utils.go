@@ -6,10 +6,22 @@ import (
 	"regexp"
 )
 
-func FilterAndFormatIngresses(ingressList *v1.IngressList, domainFilter *string) (ingressHosts []string, err error) {
-	for _, ingressItem := range ingressList.Items {
-		for _, rule := range ingressItem.Spec.Rules {
-			if isMatch, err := regexp.MatchString(*domainFilter, rule.Host); err != nil {
+func FilterAndFormatIngressHosts(ingressList *v1.IngressList, domainFilter string, ingressClassFilter string) (ingressHosts []string, err error) {
+	for _, ingress := range ingressList.Items {
+
+		/*
+		  If either ingressClass name annotation and ingressClassName spec field don't
+		  match the ingressClassNameFilter continue and filter
+		*/
+
+		if (ingress.Spec.IngressClassName == nil || *ingress.Spec.IngressClassName != ingressClassFilter) &&
+			ingress.Annotations["kubernetes.io/ingress.class"] != ingressClassFilter {
+
+			continue
+
+		}
+		for _, rule := range ingress.Spec.Rules {
+			if isMatch, err := regexp.MatchString(domainFilter, rule.Host); err != nil {
 				return nil, err
 			} else if !isMatch {
 				continue
@@ -21,16 +33,4 @@ func FilterAndFormatIngresses(ingressList *v1.IngressList, domainFilter *string)
 		}
 	}
 	return ingressHosts, nil
-}
-
-func FilterAndFormatStringList(stringList []string, filter string) (filteredStringList []string, err error) {
-	for _, s := range stringList {
-		if matchesFilter, err := regexp.MatchString(filter, s); err != nil {
-			return nil, err
-
-		} else if matchesFilter {
-			filteredStringList = append(filteredStringList, s)
-		}
-	}
-	return filteredStringList, nil
 }
