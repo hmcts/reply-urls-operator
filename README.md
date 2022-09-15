@@ -97,13 +97,13 @@ That section should look similar to the snippet below.
         imagePullPolicy: Always
 ```
 
-2. Install CRDs, RBAC and the Operator:
+3. Install CRDs, RBAC and the Operator:
 
 ```sh
 kustomize build config/default | kubectl apply -f -
 ```
 
-3. Install ReplyURLSync custom resource and example Ingress:
+4. Install ReplyURLSync custom resource and example Ingress:
 
 ```sh
 kustomize build config/samples | kubectl apply -f -
