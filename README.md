@@ -75,39 +75,39 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 **Note:** The Makefile has the ability to build and push the container image manually, but there are GitHub Workflows in the `.github/workflows` folder that automate the process.
 
 1. Deploy the controller to the cluster with the image specified by `IMG` (this step can be skipped if you already have an image built and pushed):
+   
+   Replace `<some-registry>` with the container registry you would like to push the image to and `<tag>` with the tag to identify the image.
 
-Replace `<some-registry>` with the container registry you would like to push the image to and `<tag>` with the tag to identify the image.
-
-```sh
-make docker-build docker-push IMG=<some-registry>/reply-urls-operator:<tag>
-```
+   ```sh
+   make docker-build docker-push IMG=<some-registry>/reply-urls-operator:<tag>
+   ```
 
 2. Update the container image for the manager deployment:
 
-Before deploying the Reply URLs Operator you will need to update the image being declared in the deployment file `config/manager/manager.yaml`. Update the `manager` container in the containers section of the file with the image you have built. 
+   Before deploying the Reply URLs Operator you will need to update the image being declared in the deployment file `config/manager/manager.yaml`. Update the `manager` container in the containers section of the file with the image you have built. 
+   
+   That section should look similar to the snippet below.
 
-That section should look similar to the snippet below.
-
-```yaml
-      containers:
-      - name: manager
-        command:
-        - /manager
-        image: sdshmctspublic.azurecr.io/reply-urls-operator:prod-c4620b7-20220905093200
-        imagePullPolicy: Always
-```
+   ```yaml
+         containers:
+         - name: manager
+           command:
+           - /manager
+           image: sdshmctspublic.azurecr.io/reply-urls-operator:prod-c4620b7-20220905093200
+           imagePullPolicy: Always
+   ```
 
 3. Install CRDs, RBAC and the Operator:
 
-```sh
-kustomize build config/default | kubectl apply -f -
-```
+   ```sh
+   kustomize build config/default | kubectl apply -f -
+   ```
 
 4. Install ReplyURLSync custom resource and example Ingress:
 
-```sh
-kustomize build config/samples | kubectl apply -f -
-```
+   ```sh
+   kustomize build config/samples | kubectl apply -f -
+   ```
 
 The Reply URLs operator should now be running and managing your app registrations Reply URLs.
 
