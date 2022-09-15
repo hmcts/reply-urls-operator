@@ -9,6 +9,7 @@ on:
       - hack/**
       - scripts/**
       - bin/**
+      - README.md
 
 jobs:
   Build:

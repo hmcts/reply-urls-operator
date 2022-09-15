@@ -9,6 +9,7 @@ on:
       - config/**
       - hack/**
       - scripts/**
+      - README.md
 
 env:
   # Common vars
