@@ -4,10 +4,10 @@ An Operator which converts configured Kubernetes Ingress hosts to valid Azure Ap
 ### Table of Contents
 **[Description](#Description)**<br>
 **[How the Operator works](#How-the-Operator-works)**<br>
-**[Running on a cluster](#Running on a cluster)**<br>
-**[Test out the operator locally](#Test out the operator locally)**<br>
-**[GitHub Workflows](#GitHub Workflows)**<br>
-**[Modifying the API definitions](#Modifying the API definitions)**<br>
+**[Running on a cluster](#Running-on-a-cluster)**<br>
+**[Test out the operator locally](#Test-out-the-operator-locally)**<br>
+**[GitHub Workflows](#GitHub-Workflows)**<br>
+**[Modifying the API definitions](#Modifying-the-API-definitions)**<br>
 **[License](#License)**<br>
 
 ## Description
