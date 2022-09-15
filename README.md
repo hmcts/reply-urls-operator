@@ -36,9 +36,13 @@ Permissions needed for the operator to run properly are as follows.
 ### Running on a cluster
 
 #### Configuring the sync config
-Before deploying anything you will need an App Registration to monitor and an App Registration with the correct permissions to update the App Reg you are monitoring. We will also need to configure the Sync config for so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be monitoring and managing.  
+Before deploying anything you will need an Azure App Registration that will have its Reply URLs updated by the Operator and either the same App Registration or a separate one that has the right permissions to update the App Registration's Reply URLs.
 
-Currently, there are 6 fields available to configure the sync.
+[Instructions on creating an Azure App Registration](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
+
+You will need to take note of the Object ID of the App Reg that will have its Reply URls managed by the Operator and the Client/Application ID, Client Secret and Tenant ID of the App Reg you'll be using to Authenticate. 
+
+To configure the Sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
 
 1. ingressClassFilter: Name of the Ingress Class that you want to watch e.g. "traefik"
 2. domainFilter (optional): Regex of the domain of the Ingress Hosts you want to manage e.g. ".*.sandbox.platform.hmcts.net". Defaults to match all ".*"
