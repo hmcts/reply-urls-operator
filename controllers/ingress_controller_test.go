@@ -7,9 +7,7 @@ import (
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/utils/strings/slices"
-	"math/rand"
 	"os"
-	"sort"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -19,31 +17,13 @@ import (
 )
 
 var (
-	clientID              = "2816f198-4c26-48bb-8732-e4ca72926ba7"
-	objectID              = "850e80c0-e09e-489d-b12d-5e80cd1bca6a"
-	tenantID              = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
-	domainFilter          = ".*sandbox.platform.hmcts.net"
-	ingressClass          = "traefik"
+	clientID     = "2816f198-4c26-48bb-8732-e4ca72926ba7"
+	objectID     = "850e80c0-e09e-489d-b12d-5e80cd1bca6a"
+	tenantID     = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
+	ingressClass = "traefik"
+
 	replyURLSyncName      = "test-reply-url-sync"
 	replyURLSyncNamespace = "default"
-
-	replyURLSync = &v1alpha1.ReplyURLSync{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "appregistrations.azure.hmcts.net/v1alpha1",
-			Kind:       "ReplyURLSync",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      replyURLSyncName,
-			Namespace: replyURLSyncNamespace,
-		},
-		Spec: v1alpha1.ReplyURLSyncSpec{
-			TenantID:           &tenantID,
-			ObjectID:           &objectID,
-			ClientID:           &clientID,
-			DomainFilter:       &domainFilter,
-			IngressClassFilter: &ingressClass,
-		},
-	}
 )
 
 const (
@@ -65,13 +45,20 @@ var _ = Describe("ReplyURLSync Config", func() {
 	)
 
 	clientSecret := os.Getenv("TESTING_AZURE_CLIENT_SECRET")
+	if clientSecret == "" {
 
-	err := os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
-	if err != nil {
-		workerLog.Error(err, "Test Error")
+		workerLog.Info("Environment variable missing for credentials. Attempting to use another Auth Method",
+			"var", "TESTING_AZURE_CLIENT_SECRET",
+		)
+	} else {
+
+		err := os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
+		if err != nil {
+			workerLog.Error(err, "Test Error")
+		}
 	}
 
-	err = os.Setenv("AZURE_TENANT_ID", tenantID)
+	err := os.Setenv("AZURE_TENANT_ID", tenantID)
 	if err != nil {
 		workerLog.Error(err, "Test Error")
 	}
@@ -84,14 +71,30 @@ var _ = Describe("ReplyURLSync Config", func() {
 
 	testRunID, found := os.LookupEnv("GITHUB_EVENT_NUMBER")
 	if found == false {
-		testRunID = fmt.Sprintf("%d", rand.Intn(100))
+		testRunID = "local"
 	}
 
 	var (
-		expectedURLS = []string{
-			"https://test-app-1-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
-			"https://test-app-2-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
-			"https://test-app-5-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+		domainFilter   = ".*" + testRunID + ".sandbox.platform.hmcts.net"
+		replyURLFilter = ".*" + testRunID + ".sandbox.platform.hmcts.net"
+
+		replyURLSync = &v1alpha1.ReplyURLSync{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "appregistrations.azure.hmcts.net/v1alpha1",
+				Kind:       "ReplyURLSync",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      replyURLSyncName,
+				Namespace: replyURLSyncNamespace,
+			},
+			Spec: v1alpha1.ReplyURLSyncSpec{
+				TenantID:           &tenantID,
+				ObjectID:           &objectID,
+				ClientID:           &clientID,
+				DomainFilter:       &domainFilter,
+				ReplyURLFilter:     &replyURLFilter,
+				IngressClassFilter: &ingressClass,
+			},
 		}
 
 		testIngresses = []ingresses{
@@ -126,7 +129,14 @@ var _ = Describe("ReplyURLSync Config", func() {
 				ingressClassName: "private",
 			},
 		}
+
+		expectedURLS = []string{
+			"https://test-app-1-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+			"https://test-app-2-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+			"https://test-app-5-" + testRunID + ".sandbox.platform.hmcts.net/oauth-proxy/callback",
+		}
 	)
+
 	Context("When creating a replyURLSync", func() {
 		It("It should get created", func() {
 			By("By creating a new replyURLSync")
@@ -159,7 +169,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 		It("The app registrations list of urls for the pr should be empty", func() {
 			By("By cleaning up the list")
 			appRegPatchOptions := azureGraph.PatchOptions{
-				IngressHosts: []string{""},
+				IngressHosts: []string{},
 				Syncer:       *replyURLSync,
 			}
 
@@ -198,7 +208,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 					}
 				}
 				return foundURLS
-			}, timeout, interval).Should(Equal([]string{}))
+			}, timeout, interval).Should(BeEmpty())
 
 		})
 	})
@@ -250,8 +260,6 @@ var _ = Describe("ReplyURLSync Config", func() {
 		It("should update the list of reply urls on the app registration", func() {
 			By("checking the ingresses on the cluster")
 
-			sort.Strings(expectedURLS)
-
 			Eventually(func() (foundURLS []string) {
 				client, err := azureGraph.CreateClient()
 				if err != nil {
@@ -264,8 +272,8 @@ var _ = Describe("ReplyURLSync Config", func() {
 					workerLog.Error(err, "Test Error")
 				}
 
-				//sort.Strings(replyURLHosts)
 				for _, url := range expectedURLS {
+
 					if slices.Contains(replyURLHosts, url) {
 						foundURLS = append(foundURLS, url)
 					}
@@ -277,4 +285,67 @@ var _ = Describe("ReplyURLSync Config", func() {
 		})
 
 	})
+
+	Context("When deleting ingresses", func() {
+		It("the ingresses hosts should be cleared from the app reg reply urls", func() {
+			By("Deleting them")
+
+			for _, testIngress := range testIngresses {
+				ctx := context.Background()
+				ingress := &v1.Ingress{
+					TypeMeta: metav1.TypeMeta{
+						APIVersion: "networking.k8s.io/v1",
+						Kind:       "Ingress",
+					},
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      testIngress.name,
+						Namespace: ingressNamespace,
+					},
+					Spec: v1.IngressSpec{
+						IngressClassName: &testIngress.ingressClassName,
+						Rules: []v1.IngressRule{
+							{
+								Host: testIngress.host,
+							},
+						},
+					},
+				}
+				Expect(k8sClient.Delete(ctx, ingress)).Should(Succeed())
+			}
+
+			Eventually(func() []v1.Ingress {
+				ingressList := &v1.IngressList{}
+				err := k8sClient.List(context.TODO(), ingressList, nil...)
+				if err != nil {
+					workerLog.Error(err, "Failed to get ingresses")
+				}
+
+				return ingressList.Items
+			}, timeout, interval).Should(BeEmpty())
+
+			Eventually(func() (foundURLS []string) {
+
+				client, err := azureGraph.CreateClient()
+				if err != nil {
+					workerLog.Error(err, "Test Error")
+				}
+
+				replyURLS, err := azureGraph.GetReplyURLs(objectID, client)
+				if err != nil {
+					workerLog.Error(err, "Test Error")
+				}
+
+				for _, i := range expectedURLS {
+					if slices.Contains(replyURLS, i) {
+						foundURLS = append(foundURLS, i)
+
+					}
+				}
+
+				return foundURLS
+			}, timeout, interval).Should(BeEmpty())
+
+		})
+	})
+
 })

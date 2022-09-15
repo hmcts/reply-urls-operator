@@ -18,7 +18,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
 	v1 "k8s.io/api/networking/v1"
@@ -159,11 +158,20 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		fnf.SetField(".spec.objectID")
 		return ctrl.Result{}, fnf
 	}
+
 	if replyURLSync.Spec.DomainFilter == nil {
 		replyURLSync.Spec.DomainFilter = &defaultDomainFilter
 	}
 
-	result, err := azureGraph.ProcessHost(hosts, replyURLSync.Spec)
+	result, err := azureGraph.ProcessHost(
+		&v1.IngressList{
+			Items: []v1.Ingress{
+				ingress,
+			},
+		},
+		replyURLSync.Spec,
+	)
+
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -220,14 +228,8 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 	*/
 	for _, syncer := range replyURLSyncList.Items {
 		var opts []client.ListOption
-		syncSpec := syncer.Spec
 
-		if syncSpec.IngressClassFilter != nil {
-			// get list of ingresses on cluster
-			opts = []client.ListOption{
-				client.MatchingFields{ingressClassNameField: *syncSpec.IngressClassFilter},
-			}
-		}
+		syncSpec := syncer.Spec
 
 		if syncSpec.ClientID != nil {
 			if err = os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID); err != nil {
@@ -256,10 +258,15 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 
 		err = r.List(context.TODO(), &ingressList, opts...)
 		if err != nil {
-			fmt.Println(err)
+			workerLog.Error(err, "Couldn't list ingress")
 		}
 
-		ingresses, err := azureGraph.FilterAndFormatIngresses(&ingressList, syncSpec.DomainFilter)
+		ingresses, err := azureGraph.FilterAndFormatIngressHosts(
+			&ingressList,
+			*syncSpec.DomainFilter,
+			*syncSpec.IngressClassFilter,
+		)
+
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -268,14 +275,15 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			IngressHosts: ingresses,
 			Syncer:       syncer,
 		}
+
 		removedURLS, err := azureGraph.PatchAppRegistration(appRegPatchOptions)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 
 		if removedURLS != nil {
-			workerLog.Info("Host removed",
-				"hosts", removedURLS,
+			workerLog.Info("Reply URLs removed",
+				"URLs", removedURLS,
 				"object id", *syncSpec.ObjectID,
 				"ingressClassName", *syncSpec.IngressClassFilter,
 			)

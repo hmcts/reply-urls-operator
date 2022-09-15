@@ -4,12 +4,8 @@ on:
   pull_request:
     types:
       - closed
-    paths-ignore:
-      - .github/**
-      - hack/**
-      - scripts/**
-      - bin/**
-      - README.md
+    paths:
+      - config/**
 
 jobs:
   Build:

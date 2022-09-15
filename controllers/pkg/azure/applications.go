@@ -1,11 +1,12 @@
 package azureGraph
 
 import (
-	"fmt"
 	"github.com/go-openapi/swag"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
 	graph "github.com/microsoftgraph/msgraph-sdk-go/models"
+	v1 "k8s.io/api/networking/v1"
+	"regexp"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
@@ -36,6 +37,7 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 	requestBody.SetWeb(app)
 
 	err := graphClient.ApplicationsById(appId).Patch(requestBody)
+
 	if err != nil {
 		return err
 	}
@@ -43,10 +45,14 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 }
 
 func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err error) {
-	syncer := patchOptions.Syncer
-	syncSpec := syncer.Spec
-	syncerFullResourceName := syncer.Name
-	var newRedirectURLS []string
+	var (
+		newRedirectURLS []string
+
+		syncer                 = patchOptions.Syncer
+		syncSpec               = syncer.Spec
+		syncerFullResourceName = syncer.Name
+		replyURLFilter         = syncSpec.ReplyURLFilter
+	)
 
 	azureAppClient, err := CreateClient()
 	if err != nil {
@@ -70,12 +76,33 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		if swag.ContainsStrings(patchOptions.IngressHosts, url) {
 			newRedirectURLS = append(newRedirectURLS, url)
 		} else {
-			removedURLS = append(removedURLS, url)
+			/*
+				If a replyURL filter isn't set, delete all reply urls that do not
+				exist as an ingress host on the cluster
+
+				If it is set and the url matches with the filter delete it
+				If it is set and the url doesn't match do not delete it
+			*/
+			if replyURLFilter == nil {
+				removedURLS = append(removedURLS, url)
+			} else {
+				if matched, err := regexp.MatchString(*replyURLFilter, url); err != nil {
+					return nil, err
+				} else if matched {
+					removedURLS = append(removedURLS, url)
+				} else {
+					newRedirectURLS = append(newRedirectURLS, url)
+				}
+			}
 		}
 	}
 
 	if len(removedURLS) == 0 {
 		return nil, nil
+	}
+
+	if len(newRedirectURLS) == 0 {
+		newRedirectURLS = []string{}
 	}
 
 	if err := PatchAppReplyURLs(*syncSpec.ObjectID, newRedirectURLS, azureAppClient); err != nil {
@@ -84,7 +111,7 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 	return removedURLS, nil
 }
 
-func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctrl.Result, err error) {
+func ProcessHost(ingresses *v1.IngressList, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctrl.Result, err error) {
 
 	var (
 		urls           []string
@@ -96,24 +123,24 @@ func ProcessHost(hosts []string, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctr
 		return ctrl.Result{}, err
 	}
 
-	filteredHosts, err := FilterAndFormatStringList(hosts, *syncSpec.DomainFilter)
+	formattedURLs, err := FilterAndFormatIngressHosts(ingresses, *syncSpec.DomainFilter, *syncSpec.IngressClassFilter)
+
 	if err != nil {
 		workerLog.Error(err, "Unable to filter lists")
 	}
 
-	for _, host := range filteredHosts {
+	for _, url := range formattedURLs {
 
 		if urls, err = GetReplyURLs(*syncSpec.ObjectID, azureAppClient); err != nil {
 			return ctrl.Result{}, err
 		} else {
-			hostFormatted := fmt.Sprintf("https://%s/oauth-proxy/callback", host)
-			if !swag.ContainsStrings(urls, hostFormatted) {
-				urls = append(urls, hostFormatted)
+			if !swag.ContainsStrings(urls, url) {
+				urls = append(urls, url)
 				if err := PatchAppReplyURLs(*syncSpec.ObjectID, urls, azureAppClient); err != nil {
 					return ctrl.Result{}, err
 				}
-				workerLog.Info("Host added",
-					"host", hostFormatted,
+				workerLog.Info("Reply URL added",
+					"URL", url,
 					"object id", *syncSpec.ObjectID, "ingressClassName", *syncSpec.IngressClassFilter)
 			}
 		}
