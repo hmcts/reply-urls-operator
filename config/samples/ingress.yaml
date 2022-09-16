@@ -7,7 +7,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: reply-urls-ingressclass.demo.platform.hmcts.net
+  - host: reply-urls-ingressclass.sandbox.platform.hmcts.net
     http:
       paths:
       - backend:
