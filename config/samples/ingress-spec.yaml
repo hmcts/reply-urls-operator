@@ -1,18 +1,18 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  # Ingress used to test ingresses with ingressClassName in it's spec
-  name: reply-urls-ingressclass-spec
+  # Ingress used to test ingresses with ingressClassName in its spec
+  name: reply-urls-example-1
   namespace: default
 spec:
   ingressClassName: traefik
   rules:
-  - host: reply-urls-ingressclass.sandbox.platform.hmcts.net
+  - host: reply-urls-example-1.local.platform.hmcts.net
     http:
       paths:
       - backend:
           service:
-            name: reply-urls-demo
+            name: reply-urls-operator
             port:
               number: 80
         path: /
