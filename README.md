@@ -127,7 +127,7 @@ make undeploy
 
 
 
-### Test out the operator locally
+## Test out the operator locally
 
 First of all we need to deploy the CRDs and example resources so the Operator knows which Ingresses to watch for and which Reply URLs to manage.
 
