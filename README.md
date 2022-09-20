@@ -171,18 +171,32 @@ You should see something similar to below:
 
 You'll notice that in the logs it states that 2 URLs have been added to the list of Reply URLs. The Operator has picked up the hosts from the Ingresses we created and as they both meet the IngressClassName and Domain filters it has added them to the list. If you're using an already existing Dev cluster there will already by ingresses on that cluster, but they won't match the filters and therefore will not be added to the App Registration's Reply URLs list.
 
-Delete the ingresses from the cluster.
 
+Open up another terminal at the root of the reply-url-operator repo and delete the ingresses from the cluster.
 ```shell
 kubectl delete -f 'config/samples/ingress-*'
 ```
 
-You should now see two more lines in the log detailing the removal of the URls as the ingresses no longer exist on the cluster, similar to below:
+In your original terminal, where you are running the operator, You should now see two more lines in the log detailing the removal of the URls as the ingresses no longer exist on the cluster, similar to below:
 
 ```json lines
 1.6633259693645282e+09  INFO    Reply URLs removed      {"URLs": ["https://reply-urls-example-2.local.platform.hmcts.net/oauth-proxy/callback"], "object id": "b40e709c-24e0-4e1f-8e79-65268a4c24fe", "ingressClassName": "traefik"}
 1.663325972135824e+09   INFO    Reply URLs removed      {"URLs": ["https://reply-urls-example-1.local.platform.hmcts.net/oauth-proxy/callback"], "object id": "b40e709c-24e0-4e1f-8e79-65268a4c24fe", "ingressClassName": "traefik"}
 ```
+
+### Clean up
+
+Delete the ReplyURLResource
+```sh
+kubectl delete -f config/samples/reply-url-sync-example.yaml
+```
+
+Delete the ReplyURLSync CRD 
+```sh
+kustomize build config/crd | kubectl apply -f -
+```
+
+Press `CTRL+C` to Stop the Operator.
 
 
 ### Modifying the API definitions
