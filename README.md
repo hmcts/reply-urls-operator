@@ -200,7 +200,7 @@ In your original terminal, where you are running the operator, You should now se
 
 ### Clean up
 
-Delete the ReplyURLResource
+Delete the ReplyURL resource
 ```sh
 kubectl delete -f config/samples/reply-url-sync-example.yaml
 ```
@@ -211,7 +211,6 @@ kustomize build config/crd | kubectl apply -f -
 ```
 
 Press `CTRL+C` to Stop the Operator.
-
 
 ### Modifying the API definitions
 If you are editing the API definitions, generate the manifests such as CRs or CRDs using:
@@ -227,7 +226,14 @@ More information can be found via the [Kubebuilder Documentation](https://book.k
 
 ## GitHub Workflows
 
-TODO
+### Build and test workflow
+This workflow builds and tests the Operator code. When the tests are successful, the workflow builds a container image and pushes the image to a container registry.
+
+### Promote workflow
+Promotes the built image when the PR is closed and approved.
+
+### Tag code workflow
+Tags the code base when the config directory gets updated.
 
 ## License
 
