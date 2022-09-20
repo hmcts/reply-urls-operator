@@ -19,17 +19,33 @@ which provides a reconcile function responsible for synchronizing resources unti
 ### How the Operator works
 1. Once running, the operator will watch for any Create, Update or Delete events associated with Ingress resources on the cluster it's running on. If you're running the controller locally it will be whichever cluster your kubectl config is pointing to.
 2. When an event occurs on an Ingresses on the cluster the operator will act upon that event, depending on the type of event.
-   * **Create/Update:** The Ingress the event is targeting will be synced, if it doesn't exist in the list of Reply URLs it will be added.
+   * **Create/Update:** The Ingress the event is created on will be synced, if it doesn't exist in the list of Reply URLs it will be added.
    * **Delete:** The list of Reply URLs on the app registration will be checked and if there are any URLs that do not have an Ingress associated with it, the operator will remove the URL for the App Registration. You can change this behaviour by setting `replyURLFilter` to a regex of the URLs the operator should manage, ignoring anything that doesn't match.
 3. The operator will also reconcile every 5 minutes against all Ingresses on the cluster.
 
-
-### Permissions
+### Permissions & RBAC
 Permissions needed for the operator to run properly are as follows.
 
 #### Operator App Registration
 * API Permissions: `Application.ReadWrite.All` (Type: Application)
 
+
+#### Cluster RBAC
+All the RBAC files can be found in the `config/rbac` folder. They are created using markers in the Operators Go code, markers for RBAC can be found in `controllers/ingress_controller.go` and look similar to below.
+
+```go
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
+```
+
+[More information on RBAC markers](https://book.kubebuilder.io/reference/markers/rbac.html) 
+
+
+The Operator needs the permissions below to work properly.
+
+| resources     | verbs     |
+|---------------|-----------|
+| replyurlsyncs | get, list |
+| ingresses     | get, list |
 
 ### Running on a cluster
 
