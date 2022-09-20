@@ -11,9 +11,7 @@ A k8s Operator which watches for events on Ingress resources and takes the hosts
 **[License](#License)**<br>
 
 ## Description
-This Operator was created to automate the manual process of updating and removing Redirect URLs when applications are deployed and removed. 
-
-This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
+This Operator was created to automate the manual process of updating and removing Redirect URLs when applications are deployed and removed. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
 which provides a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
 
 ## Getting Started
