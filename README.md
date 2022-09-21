@@ -160,6 +160,11 @@ UnDeploy the controller to the cluster:
 make undeploy
 ```
 
+###### Delete Secret
+```sh
+kubectl create secret -n admin generic reply-urls-operator --from-literal azure-client-secret=<client_secret>
+```
+
 ## Test out the operator locally
 
 First of all we need to deploy the CRDs and example resources so the Operator knows which Ingresses to watch for and which Reply URLs to manage.
