@@ -1,7 +1,7 @@
 # reply-urls-operator
 A k8s Operator which watches for events on Ingress resources and takes the hosts associated with them, converts them to valid Azure App Registration Reply URLs, it then updates the App Registration and keeps them in sync.  
 
-### Table of Contents
+## Table of Contents
 **[Description](#Description)**<br>
 **[How the Operator works](#How-the-Operator-works)**<br>
 **[Running on a cluster](#Running-on-a-cluster)**<br>
