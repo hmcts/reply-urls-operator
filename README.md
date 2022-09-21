@@ -128,7 +128,7 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
    kustomize build config/default | kubectl apply -f -
    ```
 
-4. Install ReplyURLSync custom resource and example Ingress:
+5. Install ReplyURLSync custom resource and example Ingress:
 
    ```sh
    kustomize build config/samples | kubectl apply -f -
