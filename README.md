@@ -119,7 +119,7 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 
    Command to create the secret manually:
    ```sh
-    kubectl create secret -n admin generic reply-test-secret --from-literal azure-client-secret=<client_secret>
+    kubectl create secret -n admin generic reply-urls-operator --from-literal azure-client-secret=<client_secret>
    ```
 
 4. Install CRDs, RBAC and the Operator:
