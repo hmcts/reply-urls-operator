@@ -58,8 +58,8 @@ Before deploying anything you will need an Azure App Registration that will have
 
 You will need to take note of the Object ID of the App Registration that will be managed by the Operator and the Client/Application ID, Client Secret and Tenant ID of the App Registration that will be used to Authenticate.
 
-#### Configuring the sync config
-To configure the Sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
+#### Configuring the ReplyURLSync config
+To configure the sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
 
 1. ingressClassFilter: Name of the Ingress Class that you want to watch e.g. "traefik"
 2. domainFilter (optional): Regex of the domain of the Ingress Hosts you want to manage e.g. ".*.sandbox.platform.hmcts.net". Defaults to match all ".*"
@@ -114,7 +114,15 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
            imagePullPolicy: Always
    ```
 
-3. Install CRDs, RBAC and the Operator:
+3. Create reply-urls-operator secret
+   Currently the App Registration's Client Secret for the Operator is set as an environment variable. You will need to create a secret called `reply-urls-operator` with a data object called `azure-client-secret`.
+
+   Command to create the secret manually:
+   ```sh
+    kubectl create secret -n admin generic reply-test-secret --from-literal azure-client-secret=<client_secret>
+   ```
+
+4. Install CRDs, RBAC and the Operator:
 
    ```sh
    kustomize build config/default | kubectl apply -f -
