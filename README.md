@@ -4,7 +4,7 @@ A k8s Operator which watches for events on Ingress resources and takes the hosts
 ## Table of Contents
 **[Description](#Description)**<br>
 **[How the Operator works](#How-the-Operator-works)**<br>
-**[Running on a cluster](#Running-on-a-cluster)**<br>
+**[Deploying the Operator to a cluster](#Deploying-the-Operator-to-a-cluster)**<br>
 **[Test out the operator locally](#Test-out-the-operator-locally)**<br>
 **[GitHub Workflows](#GitHub-Workflows)**<br>
 **[Modifying the API definitions](#Modifying-the-API-definitions)**<br>
@@ -45,16 +45,16 @@ The Operator needs the permissions below to work properly.
 | replyurlsyncs | get, list, watch |
 | ingresses     | get, list, watch |
 
+## Running the Operator
 
-### Running the Operator
-
-#### Configuring the sync config
 Before deploying anything you will need an Azure App Registration that will have its Reply URLs updated by the Operator and either the same App Registration or a separate one that has the right permissions to update the App Registration's Reply URLs.
 
 [Instructions on creating an Azure App Registration](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
 
-You will need to take note of the Object ID of the App Reg that will have its Reply URls managed by the Operator and the Client/Application ID, Client Secret and Tenant ID of the App Reg you'll be using to Authenticate. 
+You will need to take note of the Object ID of the App Registration that will be managed by the Operator and the Client/Application ID, Client Secret and Tenant ID of the App Registration that will be used to Authenticate.
 
+
+#### Configuring the sync config
 To configure the Sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
 
 1. ingressClassFilter: Name of the Ingress Class that you want to watch e.g. "traefik"
@@ -124,7 +124,8 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 
 The Reply URLs operator should now be running and managing your app registrations Reply URLs.
 
-##### Cleanup 
+##### Cleanup
+
 ###### Uninstall CRDs
 To delete the CRDs from the cluster:
 
@@ -217,7 +218,6 @@ make manifests
 **NOTE:** Run `make --help` for more information on all potential `make` targets
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
-
 
 ## GitHub Workflows
 
