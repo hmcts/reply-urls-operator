@@ -1,5 +1,5 @@
 # reply-urls-operator
-A k8s Operator which watches for events on Ingress resources and takes the hosts associated with them, converts them to valid Azure App Registration Reply URLs, it then updates the App Registration and keeps them in sync.  
+A k8s Operator that keeps Ingress hosts in sync with the Redirect URLs associated with an Azure App Registration.
 
 ## Table of Contents
 **[Description](#Description)**<br>
@@ -11,23 +11,27 @@ A k8s Operator which watches for events on Ingress resources and takes the hosts
 **[License](#License)**<br>
 
 ## Description
-The Reply URLs Operator was created to automate the manual process of updating and removing Redirect URLs when applications are deployed and removed. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
+The Reply URLs Operator was created to automate the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
 which provides a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
 
 ## Getting Started
 
 ### How the Operator works
 1. Once running, the operator will watch for any Create, Update or Delete events associated with Ingress resources on the cluster it's running on. If you're running the controller locally it will be whichever cluster your kubectl config is pointing to.
-2. When an event occurs on an Ingresses on the cluster the operator will act upon that event, depending on the type of event.
-   * **Create/Update:** The Ingress the event is created on will be synced, if it doesn't exist in the list of Reply URLs it will be added.
-   * **Delete:** The list of Reply URLs on the app registration will be checked and if there are any URLs that do not have an Ingress associated with it, the operator will remove the URL for the App Registration. You can change this behaviour by setting `replyURLFilter` to a regex of the URLs the operator should manage, ignoring anything that doesn't match.
-3. The operator will also reconcile every 5 minutes against all Ingresses on the cluster.
+2. When an event occurs on an Ingress on the cluster the operator will act upon that event, depending on the type of event.
+   * **Create/Update:** The Ingress the event is created, will be filtered according the to configuration set in the ReplyURLSync config and will be synced, if it matches the filter and doesn't exist in the list of Reply URLs it will be added.
+   * **Delete:** The list of Reply URLs on the app registration will be checked and if there are any URLs that do not have an Ingress associated with it, the operator will remove the URL from the App Registration. You can change this behaviour by setting `replyURLFilter` to a regex of the URLs the operator should manage, ignoring anything that doesn't match.
+3. The operator also reconciles every 5 minutes against all Ingresses on the cluster.
 
-### Permissions & RBAC
+### Permissions and RBAC
 Permissions needed for the operator to run properly are as follows.
 
-#### Operator App Registration
+#### Operator Azure permissions
+The Operator needs to be able to read and write to the App Registrations and can be added via the `API Permissions` tab on the App Registration itself.
+
 * API Permissions: `Application.ReadWrite.All` (Type: Application)
+
+**Note:** If you are running the cluster locally you can use the az cli to authenticate with Azure as long as your user is able to Read and Write to the App Registration that the Operator is configured to manage.
 
 #### Cluster RBAC
 All the RBAC files can be found in the `config/rbac` folder. They are created using markers in the Operators Go code, markers for RBAC can be found in `controllers/ingress_controller.go` and look similar to below.
@@ -52,7 +56,6 @@ Before deploying anything you will need an Azure App Registration that will have
 [Instructions on creating an Azure App Registration](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-register-app)
 
 You will need to take note of the Object ID of the App Registration that will be managed by the Operator and the Client/Application ID, Client Secret and Tenant ID of the App Registration that will be used to Authenticate.
-
 
 #### Configuring the sync config
 To configure the Sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
