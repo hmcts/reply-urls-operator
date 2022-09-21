@@ -29,7 +29,6 @@ Permissions needed for the operator to run properly are as follows.
 #### Operator App Registration
 * API Permissions: `Application.ReadWrite.All` (Type: Application)
 
-
 #### Cluster RBAC
 All the RBAC files can be found in the `config/rbac` folder. They are created using markers in the Operators Go code, markers for RBAC can be found in `controllers/ingress_controller.go` and look similar to below.
 
@@ -39,15 +38,15 @@ All the RBAC files can be found in the `config/rbac` folder. They are created us
 
 [More information on RBAC markers](https://book.kubebuilder.io/reference/markers/rbac.html) 
 
-
 The Operator needs the permissions below to work properly.
 
-| resources     | verbs     |
-|---------------|-----------|
-| replyurlsyncs | get, list |
-| ingresses     | get, list |
+| resources     | verbs            |
+|---------------|------------------|
+| replyurlsyncs | get, list, watch |
+| ingresses     | get, list, watch |
 
-### Running on a cluster
+
+### Running the Operator
 
 #### Configuring the sync config
 Before deploying anything you will need an Azure App Registration that will have its Reply URLs updated by the Operator and either the same App Registration or a separate one that has the right permissions to update the App Registration's Reply URLs.
@@ -125,26 +124,24 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 
 The Reply URLs operator should now be running and managing your app registrations Reply URLs.
 
-### Uninstall CRDs
+##### Cleanup 
+###### Uninstall CRDs
 To delete the CRDs from the cluster:
 
 ```sh
 make uninstall
 ```
 
-### Undeploy controller
+###### Undeploy controller
 UnDeploy the controller to the cluster:
 
 ```sh
 make undeploy
 ```
 
-
-
 ## Test out the operator locally
 
 First of all we need to deploy the CRDs and example resources so the Operator knows which Ingresses to watch for and which Reply URLs to manage.
-
 
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 
@@ -163,7 +160,6 @@ kustomize build config/samples | kubectl apply -f -
 ```
 
 Now you have the necessary resources in place, you should be able to run the Operator.
-
 ```shell
 go run main.go
 ```
@@ -184,7 +180,6 @@ You should see something similar to below:
 ```
 
 You'll notice that in the logs it states that 2 URLs have been added to the list of Reply URLs. The Operator has picked up the hosts from the Ingresses we created and as they both meet the IngressClassName and Domain filters it has added them to the list. If you're using an already existing Dev cluster there will already be Ingresses on that cluster, but they won't match the filters and therefore will not be added to the App Registration's Reply URLs list.
-
 
 Open up another terminal at the root of the reply-url-operator repo and delete the Ingresses from the cluster.
 ```shell
