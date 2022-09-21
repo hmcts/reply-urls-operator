@@ -34,13 +34,6 @@ The Operator needs to be able to read and write to the App Registrations and can
 **Note:** If you are running the cluster locally you can use the az cli to authenticate with Azure as long as your user is able to Read and Write to the App Registration that the Operator is configured to manage.
 
 #### Cluster RBAC
-All the RBAC files can be found in the `config/rbac` folder. They are created using markers in the Operators Go code, markers for RBAC can be found in `controllers/ingress_controller.go` and look similar to below.
-
-```go
-//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
-```
-
-[More information on RBAC markers](https://book.kubebuilder.io/reference/markers/rbac.html) 
 
 The Operator needs the permissions below to work properly.
 
@@ -48,6 +41,14 @@ The Operator needs the permissions below to work properly.
 |---------------|------------------|
 | replyurlsyncs | get, list, watch |
 | ingresses     | get, list, watch |
+
+All the RBAC files can be found in the `config/rbac` folder. They are created using markers in the Operators Go code, markers for RBAC can be found in `controllers/ingress_controller.go` and look similar to below.
+
+```go
+//+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch
+```
+
+[More information on RBAC markers](https://book.kubebuilder.io/reference/markers/rbac.html) 
 
 ## Running the Operator
 
