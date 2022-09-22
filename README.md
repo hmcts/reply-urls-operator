@@ -280,6 +280,14 @@ make manifests
 
 More information can be found via the [Kubebuilder Documentation](https://book.kubebuilder.io/introduction.html)
 
+
+## Running the tests
+
+Run the automated tests.
+```shell
+make test
+```
+
 ## GitHub Workflows
 
 ### Build and test workflow
