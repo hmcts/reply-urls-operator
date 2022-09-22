@@ -63,8 +63,6 @@ Once you have created the app registration you will need to give it the correct 
 #### Configuring the ReplyURLSync config
 To configure the sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
 
-
-
 #### Deploying the Operator to a cluster
 
 The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the Operator, the replyURLSync and the example Ingress. The Operator should be fully operational after these commands have been executed.
@@ -144,6 +142,8 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 
 The Reply URLs operator should now be running and managing your app registrations Reply URLs.
 
+Move onto [testing the functionality of the operator](#Testing-the-functionality-of-the-Operator)
+
 ##### Cleanup
 
 ###### Uninstall CRDs
@@ -190,6 +190,35 @@ Now you have the necessary resources in place, you should be able to run the Ope
 go run main.go
 ```
 
+Move onto the next section to test that the operator is working correctly.
+
+## Testing the functionality of the Operator
+
+### Viewing the Operator logs
+If you are running the operator on a cluster and not locally follow the steps below to view the logs:
+<details>
+    <summary>Running on a cluster</summary>
+   
+   Get the name of the operator pod: 
+   ```shell
+   kubectl get pods -n admin -l control-plane=reply-urls-operator
+   ```
+
+   View the logs of the pod (replace <pod-name> with the name of the pod from the previous step):
+   ```shell
+   kubectl logs -n admin -f <pod-name> 
+   ```
+
+</details>
+
+If you can running locally use the steps below:
+<details>
+    <summary>Running locally</summary>
+
+   If you have already followed the steps in [Test out the operator locally](#Test-out-the-operator-locally) and ran `main.go`, you should be viewing the logs in your terminal already.
+
+</details>
+
 You should see something similar to below:
 
 ```json lines
@@ -202,11 +231,18 @@ You should see something similar to below:
 1.663325436863749e+09   INFO    Starting workers        {"controller": "ingress", "controllerGroup": "networking.k8s.io", "controllerKind": "Ingress", "worker count": 1}
 1.663325444372884e+09   INFO    Reply URL added {"URL": "https://reply-urls-example-2.local.platform.hmcts.net/oauth-proxy/callback", "object id": "b40e709c-24e0-4e1f-8e79-65268a4c24fe", "ingressClassName": "traefik"}
 1.6633254472403562e+09  INFO    Reply URL added {"URL": "https://reply-urls-example-1.local.platform.hmcts.net/oauth-proxy/callback", "object id": "b40e709c-24e0-4e1f-8e79-65268a4c24fe", "ingressClassName": "traefik"}
-
 ```
 
 You'll notice that in the logs it states that 2 URLs have been added to the list of Reply URLs. The Operator has picked up the hosts from the Ingresses we created and as they both meet the IngressClassName and Domain filters it has added them to the list. If you're using an already existing Dev cluster there will already be Ingresses on that cluster, but they won't match the filters and therefore will not be added to the App Registration's Reply URLs list.
 
+To test that the operator is actually working and updating the App Registration's Reply URLs, you can use the Azure Portal to check that the App Registration's list of Reply URLs contains `https://reply-urls-example-1.local.platform.hmcts.net/oauth-proxy/callback` and `https://reply-urls-example-2.local.platform.hmcts.net/oauth-proxy/callback`.
+
+You can also run the az command below to view the URLs (replace <object-id> with the object id of the app registration you are updating):
+```sh
+az ad app show --id <object-id> --query 'web.redirectUris'
+```
+
+### Testing the operator works
 Open up another terminal at the root of the reply-url-operator repo and delete the Ingresses from the cluster.
 ```shell
 kubectl delete -f 'config/samples/ingress-*'
