@@ -111,7 +111,7 @@ test: manifests generate fmt vet envtest ## Run tests.
 	 KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
 
 .PHONY: test-ci
-test: manifests generate fmt vet envtest ## Run tests.
+test-ci: manifests generate fmt vet envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test -v ./... | tee >(go-junit-report -set-exit-code > report.xml)
 
 
