@@ -3,14 +3,14 @@ A k8s Operator that keeps Ingress hosts in sync with the Redirect URLs associate
 
 
 ## Description
-The Reply URLs Operator automates the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
-which provides a reconcile function responsible for synchronising resources until the desired state is reached on the cluster.
+The Reply URLs Operator automates the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters.
+This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
+It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
 
 ## Getting Started
 
 ### Prerequisites
-To run or contribute to this project you will need to [install Golang.](https://go.dev/doc/install)
-
+- [Golang 1.19](https://go.dev/doc/install)
 
 ### How the Operator works
 1. Once running, the operator will watch for any Create, Update or Delete events associated with Ingress resources on the cluster it's running on. If you're running the controller locally it will be whichever cluster your kubectl config is pointing to.
@@ -60,7 +60,7 @@ Add the `Application.ReadWrite.All` permission and click Add permissions, then c
 
 #### Deploying the Operator to a cluster
 
-The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the Operator, the replyURLSync and the example Ingress. The Operator should be fully operational after these commands have been executed.
+The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the Operator, the `replyURLSync` and the example `Ingress`. The Operator should be fully operational after these commands have been executed.
 
 **Note:** The Makefile has the ability to build and push the container image manually, but there are GitHub Actions in the `.github/workflows` folder that automate the process.
 
@@ -297,20 +297,4 @@ Promotes the built image when the PR is closed and approved.
 
 ### Tag code workflow
 Tags the code base when the config directory gets updated.
-
-## License
-
-Copyright 2022.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
 
