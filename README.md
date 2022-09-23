@@ -230,7 +230,7 @@ To test that the operator is actually working and updating the App Registration'
 
 You can also run the az command below to view the URLs (replace <object-id> with the object id of the app registration you are updating):
 ```sh
-az ad app show --id <object-id> --query 'web.redirectUris'
+az ad app show --id $APP_OBJECT_ID --query 'web.redirectUris'
 ```
 
 ### Testing the operator works
