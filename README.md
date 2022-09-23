@@ -11,8 +11,8 @@ A k8s Operator that keeps Ingress hosts in sync with the Redirect URLs associate
 **[License](#License)**<br>
 
 ## Description
-The Reply URLs Operator was created to automate the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
-which provides a reconcile function responsible for synchronizing resources until the desired state is reached on the cluster.
+The Reply URLs Operator automates the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
+which provides a reconcile function responsible for synchronising resources until the desired state is reached on the cluster.
 
 ## Getting Started
 
