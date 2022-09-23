@@ -273,7 +273,7 @@ More information can be found via the [Kubebuilder Documentation](https://book.k
 
 
 ## Running the tests
-Envtest is used to set up a similar environment for integration testing on the Reply URLs Operator by setting up and starting an instance of etcd and the Kubernetes API server, without kubelet, controller-manager or other components.
+[Envtest](https://pkg.go.dev/sigs.k8s.io/controller-runtime/pkg/envtest) is used to set up a similar environment for integration testing on the Reply URLs Operator by setting up and starting an instance of etcd and the Kubernetes API server, without kubelet, controller-manager or other components.
 
 All the automated tests can be ran by running the command below.
 ```shell
