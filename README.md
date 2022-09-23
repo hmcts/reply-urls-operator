@@ -1,14 +1,6 @@
 # reply-urls-operator
 A k8s Operator that keeps Ingress hosts in sync with the Redirect URLs associated with an Azure App Registration.
 
-## Table of Contents
-**[Description](#Description)**<br>
-**[How the Operator works](#How-the-Operator-works)**<br>
-**[Deploying the Operator to a cluster](#Deploying-the-Operator-to-a-cluster)**<br>
-**[Test out the operator locally](#Test-out-the-operator-locally)**<br>
-**[GitHub Workflows](#GitHub-Workflows)**<br>
-**[Modifying the API definitions](#Modifying-the-API-definitions)**<br>
-**[License](#License)**<br>
 
 ## Description
 The Reply URLs Operator automates the manual process of updating and removing Redirect URLs when applications are created and removed from AKS clusters. This project aims to follow the Kubernetes [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/). It uses [Controllers](https://kubernetes.io/docs/concepts/architecture/controller/)
