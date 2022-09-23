@@ -8,6 +8,10 @@ which provides a reconcile function responsible for synchronising resources unti
 
 ## Getting Started
 
+### Prerequisites
+To run or contribute to this project you will need to [install Golang.](https://go.dev/doc/install)
+
+
 ### How the Operator works
 1. Once running, the operator will watch for any Create, Update or Delete events associated with Ingress resources on the cluster it's running on. If you're running the controller locally it will be whichever cluster your kubectl config is pointing to.
 2. When an `Ingress` event occurs the operator will act upon that event, depending on the type of event.
@@ -54,15 +58,11 @@ This can be done by clicking on the API permissions tab in the Azure portal whil
 You then need to click on Add a permission and then Microsoft Graph, click on Application permissions and search for Application.
 Add the `Application.ReadWrite.All` permission and click Add permissions, then click the Grant admin consent button.
 
-#### Configuring the `ReplyURLSync` config
-
-To configure the sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
-
 #### Deploying the Operator to a cluster
 
 The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the Operator, the replyURLSync and the example Ingress. The Operator should be fully operational after these commands have been executed.
 
-**Note:** The Makefile has the ability to build and push the container image manually, but there are GitHub Workflows in the `.github/workflows` folder that automate the process.
+**Note:** The Makefile has the ability to build and push the container image manually, but there are GitHub Actions in the `.github/workflows` folder that automate the process.
 
 1. Build and push the controller images to a container registry (this step can be skipped if you already have an image built and pushed):
    
@@ -92,19 +92,22 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
 
    Command to create the secret manually:
    ```sh
-    kubectl create secret -n admin generic reply-urls-operator --from-literal azure-client-secret=<client_secret>
+    AZURE_CLIENT_SECRET=
+    kubectl create secret -n admin generic reply-urls-operator --from-literal azure-client-secret="${AZURE_CLIENT_SECRET}"
    ```
 
 4. Update the ReplyURLSync config:
 
-   There is a sample ReplyURLSync config in `config/samples/reply-url-sync-example.yaml` which can be update if needs be.
+   To configure the sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync.
 
-   * ingressClassFilter: Name of the Ingress Class that you want to watch e.g. "traefik"
-   * domainFilter (optional): Regex of the domain of the Ingress Hosts you want to manage e.g. ".*.sandbox.platform.hmcts.net". Defaults to match all ".*"
-   * replyURLFilter (optional): Regex of the reply URLs you want to manage e.g. ".*.sandbox.platform.hmcts.net". This can be set to something different to the domainFilter if you would only like delete certain reply URLS from the app registration. Defaults to ".*"
-   * clientID: Client ID of the app registration you are authenticating with.
-   * objectID: Client ID of the app registration you want to sync ReplyURLS with.
-   * tenantID: Tenant ID of the app registration you are authenticating with.
+   * `ingressClassFilter`: Name of the Ingress Class that you want to watch e.g. "traefik"
+   * `domainFilter` (optional): Regex of the domain of the Ingress Hosts you want to manage e.g. ".*.sandbox.platform.hmcts.net". Defaults to match all ".*"
+   * `replyURLFilter` (optional): Regex of the reply URLs you want to manage e.g. ".*.sandbox.platform.hmcts.net". This can be set to something different to the domainFilter if you would only like to delete certain reply URLS from the app registration. Defaults to ".*"
+   * `clientID`: Client ID of the app registration you are authenticating with.
+   * `objectID`: Client ID of the app registration you want to sync ReplyURLs with.
+   * `tenantID`: Tenant ID of the app registration you are authenticating with.
+
+   There is a sample ReplyURLSync config in `config/samples/reply-url-sync-example.yaml` which can be update if needs be. 
 
    Example yaml file configuration for the ReplyURLSync:
 
@@ -148,8 +151,8 @@ To delete the CRDs from the cluster:
 make uninstall
 ```
 
-###### Undeploy controller
-UnDeploy the controller to the cluster:
+###### Uninstall controller
+Uninstall the controller on the cluster:
 
 ```sh
 make undeploy
