@@ -19,7 +19,7 @@ which provides a reconcile function responsible for synchronising resources unti
 ### How the Operator works
 1. Once running, the operator will watch for any Create, Update or Delete events associated with Ingress resources on the cluster it's running on. If you're running the controller locally it will be whichever cluster your kubectl config is pointing to.
 2. When an event occurs on an Ingress on the cluster the operator will act upon that event, depending on the type of event.
-   * **Create/Update:** The Ingress the event is created, will be filtered according the to configuration set in the ReplyURLSync config and will be synced, if it matches the filter and doesn't exist in the list of Reply URLs it will be added.
+   * **Create/Update:** An ingress has been created or updated - will be filtered according to the configuration set in the `ReplyURLSync` config and will be synced, if it matches the filter and doesn't exist in the list of Reply URLs it will be added.
    * **Delete:** The list of Reply URLs on the app registration will be checked and if there are any URLs that do not have an Ingress associated with it, the operator will remove the URL from the App Registration. You can change this behaviour by setting `replyURLFilter` to a regex of the URLs the operator should manage, ignoring anything that doesn't match.
 3. The operator also reconciles every 5 minutes against all Ingresses on the cluster.
 
