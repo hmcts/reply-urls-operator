@@ -24,7 +24,6 @@ which provides a reconcile function responsible for synchronizing resources unti
 3. The operator also reconciles every 5 minutes against all Ingresses on the cluster.
 
 ### Azure permissions and RBAC
-Permissions needed for the operator to run properly are as follows.
 
 #### Azure permissions
 The Operator needs to be able to read and write to the App Registrations and can be added via the `API Permissions` tab on the App Registration itself.
