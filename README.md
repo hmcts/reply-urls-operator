@@ -54,7 +54,7 @@ This can be done by clicking on the API permissions tab in the Azure portal whil
 You then need to click on Add a permission and then Microsoft Graph, click on Application permissions and search for Application.
 Add the `Application.ReadWrite.All` permission and click Add permissions, then click the Grant admin consent button.
 
-#### Configuring the ReplyURLSync config
+#### Configuring the `ReplyURLSync` config
 
 To configure the sync config so the Operator knows how to Authenticate with Azure, which App Registration to update and what Ingresses and URLs it should be managing, you will need to configure a `ReplyURLSync` custom resource. Currently, there are 6 fields available to configure the sync:
 
