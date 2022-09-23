@@ -153,7 +153,7 @@ make undeploy
 
 ###### Delete Secret
 ```sh
-kubectl create secret -n admin generic reply-urls-operator --from-literal azure-client-secret=<client_secret>
+kubectl delete secret -n admin reply-urls-operator
 ```
 
 ## Test out the operator locally
