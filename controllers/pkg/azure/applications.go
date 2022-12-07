@@ -1,6 +1,7 @@
 package azureGraph
 
 import (
+	"context"
 	"github.com/go-openapi/swag"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
@@ -11,7 +12,7 @@ import (
 )
 
 func getApplication(appId string, graphClient *msgraphsdk.GraphServiceClient) (appObject graph.Applicationable, err error) {
-	application, err := graphClient.ApplicationsById(appId).Get()
+	application, err := graphClient.ApplicationsById(appId).Get(context.TODO(), nil)
 	if err != nil {
 		return application, err
 	}
@@ -36,11 +37,12 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 	app.SetRedirectUris(urls)
 	requestBody.SetWeb(app)
 
-	err := graphClient.ApplicationsById(appId).Patch(requestBody)
+	_, err := graphClient.ApplicationsById(appId).Patch(context.TODO(), requestBody, nil)
 
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
