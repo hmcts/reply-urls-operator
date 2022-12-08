@@ -51,7 +51,6 @@ spec:
                 type: string
             required:
             - clientID
-            - clientSecretPath
             - objectID
             - tenantID
             type: object
