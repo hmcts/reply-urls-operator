@@ -149,9 +149,10 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		defaultSecretPath := "/mnt/secrets/reply-urls-operator/client-secret"
 
 		// Set default path if ClientSecretPath not set
-		if replyURLSync.Spec.ClientSecretPath != nil {
+		if replyURLSync.Spec.ClientSecretPath == nil {
 			replyURLSync.Spec.ClientSecretPath = &defaultSecretPath
 		}
+
 		clientSecret, err := os.ReadFile(*replyURLSync.Spec.ClientSecretPath)
 
 		if err != nil {
