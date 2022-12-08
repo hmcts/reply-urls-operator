@@ -35,13 +35,13 @@ spec:
         image: sdshmctspublic.azurecr.io/reply-urls-operator:prod-c4620b7-20220905093200
         imagePullPolicy: Always
         name: manager
-        env:
-          - name: AZURE_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: reply-urls-operator
-                key:  azure-client-secret
-                optional: false
+#        env:
+#          - name: AZURE_CLIENT_SECRET
+#            valueFrom:
+#              secretKeyRef:
+#                name: reply-urls-operator
+#                key:  azure-client-secret
+#                optional: false
         securityContext:
           allowPrivilegeEscalation: false
         # TODO(user): uncomment for common cases that do not require escalating privileges
@@ -69,5 +69,16 @@ spec:
           requests:
             cpu: 10m
             memory: 64Mi
+        volumeMounts:
+          - name: reply-urls-operator
+            mountPath: /mnt/secrets/reply-urls-operator
+            readOnly: true
       serviceAccountName: reply-urls-operator
       terminationGracePeriodSeconds: 10
+      volumes:
+        - name: reply-urls-operator
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "reply-urls-operator"

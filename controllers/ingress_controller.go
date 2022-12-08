@@ -143,6 +143,22 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
+	if _, found := os.LookupEnv("AZURE_CLIENT_SECRET"); !found {
+		// if client secret var not found try file
+		// todo: make this customisable
+		clientSecret, err := os.ReadFile("/tmp/secrets/reply-urls-operator/client-secret")
+
+		if err != nil {
+			workerLog.Info("unable to read client secret file: " + err.Error())
+			return ctrl.Result{}, nil
+		}
+		err = os.Setenv("AZURE_CLIENT_SECRET", string(clientSecret))
+		if err != nil {
+			workerLog.Info("unable to set up set up client secret variable:" + err.Error())
+			return ctrl.Result{}, nil
+		}
+	}
+
 	if replyURLSync.Spec.TenantID != nil {
 		if err = os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID); err != nil {
 			return ctrl.Result{}, err
