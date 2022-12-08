@@ -97,6 +97,11 @@ func (in *ReplyURLSyncSpec) DeepCopyInto(out *ReplyURLSyncSpec) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ClientSecretPath != nil {
+		in, out := &in.ClientSecretPath, &out.ClientSecretPath
+		*out = new(string)
+		**out = **in
+	}
 	if in.ObjectID != nil {
 		in, out := &in.ObjectID, &out.ObjectID
 		*out = new(string)

@@ -37,6 +37,8 @@ spec:
             properties:
               clientID:
                 type: string
+              clientSecretPath:
+                type: string
               domainFilter:
                 type: string
               ingressClassFilter:
@@ -49,6 +51,7 @@ spec:
                 type: string
             required:
             - clientID
+            - clientSecretPath
             - objectID
             - tenantID
             type: object
