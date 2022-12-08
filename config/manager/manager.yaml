@@ -6,6 +6,7 @@ metadata:
   namespace: admin
   labels:
     control-plane: reply-urls-operator
+    aadpodidbinding: aks-pod-identity-mi
 spec:
   selector:
     matchLabels:
