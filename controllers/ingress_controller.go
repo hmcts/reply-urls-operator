@@ -143,9 +143,15 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
+	// if client secret var not found try getting secret from file
 	if _, found := os.LookupEnv("AZURE_CLIENT_SECRET"); !found {
-		// if client secret var not found try file
-		// todo: make this customisable
+
+		defaultSecretPath := "/mnt/secrets/reply-urls-operator/client-secret"
+
+		// Set default path if ClientSecretPath not set
+		if *replyURLSync.Spec.ClientSecretPath != "" {
+			replyURLSync.Spec.ClientSecretPath = &defaultSecretPath
+		}
 		clientSecret, err := os.ReadFile(*replyURLSync.Spec.ClientSecretPath)
 
 		if err != nil {
