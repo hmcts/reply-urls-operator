@@ -50,21 +50,6 @@ var _ = Describe("ReplyURLSync Config", func() {
 		workerLog.Info("Environment variable missing for credentials. Attempting to use another Auth Method",
 			"var", "TESTING_AZURE_CLIENT_SECRET",
 		)
-	} else {
-
-		err := os.Setenv("AZURE_CLIENT_SECRET", clientSecret)
-		if err != nil {
-			workerLog.Error(err, "Test Error")
-		}
-	}
-
-	err := os.Setenv("AZURE_TENANT_ID", tenantID)
-	if err != nil {
-		workerLog.Error(err, "Test Error")
-	}
-	err = os.Setenv("AZURE_CLIENT_ID", clientID)
-	if err != nil {
-		workerLog.Error(err, "Test Error")
 	}
 
 	// Test run ID is used to identify which urls to manage in tests
@@ -97,6 +82,11 @@ var _ = Describe("ReplyURLSync Config", func() {
 			},
 		}
 
+		clientSecretCreds = azureGraph.ClientSecretCredentials{
+			TenantID:     tenantID,
+			ClientID:     clientID,
+			ClientSecret: clientSecret,
+		}
 		testIngresses = []ingresses{
 			{
 				name:             "test-app-1",
@@ -173,7 +163,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 				Syncer:       *replyURLSync,
 			}
 
-			client, err := azureGraph.CreateClient()
+			client, err := azureGraph.CreateClient(&clientSecretCreds)
 			if err != nil {
 				workerLog.Error(err, "Test Error")
 			}
@@ -261,7 +251,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 			By("checking the ingresses on the cluster")
 
 			Eventually(func() (foundURLS []string) {
-				client, err := azureGraph.CreateClient()
+				client, err := azureGraph.CreateClient(&clientSecretCreds)
 				if err != nil {
 					workerLog.Error(err, "Test Error")
 				}
@@ -325,7 +315,7 @@ var _ = Describe("ReplyURLSync Config", func() {
 
 			Eventually(func() (foundURLS []string) {
 
-				client, err := azureGraph.CreateClient()
+				client, err := azureGraph.CreateClient(&clientSecretCreds)
 				if err != nil {
 					workerLog.Error(err, "Test Error")
 				}

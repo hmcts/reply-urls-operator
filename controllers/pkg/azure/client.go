@@ -7,8 +7,8 @@ import (
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
 )
 
-func GraphAuth() (graphCreds *a.AzureIdentityAuthenticationProvider, err error) {
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
+func GraphAuth(c *ClientSecretCredentials) (graphCreds *a.AzureIdentityAuthenticationProvider, err error) {
+	cred, err := azidentity.NewClientSecretCredential(c.TenantID, c.ClientID, c.ClientSecret, nil)
 	if err != nil {
 		fmt.Printf("Error with credentials: %v", err)
 		return nil, err
@@ -22,8 +22,8 @@ func GraphAuth() (graphCreds *a.AzureIdentityAuthenticationProvider, err error) 
 	return auth, nil
 }
 
-func CreateClient() (client *msgraphsdk.GraphServiceClient, error error) {
-	auth, err := GraphAuth()
+func CreateClient(c *ClientSecretCredentials) (client *msgraphsdk.GraphServiceClient, error error) {
+	auth, err := GraphAuth(c)
 	if err != nil {
 		fmt.Printf("Error with authentication: %v\n", err)
 		return nil, err

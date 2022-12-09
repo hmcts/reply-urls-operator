@@ -38,6 +38,7 @@ var (
 	defaultDomainFilter = ".*"
 	workerLog           = ctrl.Log
 	ingressList         = v1.IngressList{}
+	defaultSecretPath   = "/mnt/secrets/reply-urls-operator/client-secret"
 )
 
 // IngressReconciler reconciles an Ingress object
@@ -134,20 +135,21 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		}
 	}
 
+	clientSecretCreds := azureGraph.ClientSecretCredentials{}
+
 	if replyURLSync.Spec.ClientID != nil {
-		if err = os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID); err != nil {
-			return ctrl.Result{}, err
-		}
+		clientSecretCreds.ClientID = *replyURLSync.Spec.ClientID
 	} else {
 		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
 		return ctrl.Result{}, nil
 	}
 
 	// if client secret var not found try getting secret from file
-	if _, found := os.LookupEnv("AZURE_CLIENT_SECRET"); !found {
+	//var clientSecret string
+	//var found bool
 
-		defaultSecretPath := "/mnt/secrets/reply-urls-operator/client-secret"
-
+	clientSecret, found := os.LookupEnv("AZURE_CLIENT_SECRET")
+	if !found {
 		// Set default path if ClientSecretPath not set
 		if replyURLSync.Spec.ClientSecretPath == nil {
 			replyURLSync.Spec.ClientSecretPath = &defaultSecretPath
@@ -159,17 +161,19 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			workerLog.Info("unable to read client secret file: " + err.Error())
 			return ctrl.Result{}, nil
 		}
-		err = os.Setenv("AZURE_CLIENT_SECRET", string(clientSecret))
+
+		clientSecretCreds.ClientSecret = string(clientSecret)
+
 		if err != nil {
 			workerLog.Info("unable to set up set up client secret variable:" + err.Error())
 			return ctrl.Result{}, nil
 		}
+	} else {
+		clientSecretCreds.ClientSecret = clientSecret
 	}
 
 	if replyURLSync.Spec.TenantID != nil {
-		if err = os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID); err != nil {
-			return ctrl.Result{}, err
-		}
+		clientSecretCreds.TenantID = *replyURLSync.Spec.TenantID
 	} else {
 		workerLog.Info("Missing configuration", "TenantID was not found in sync config")
 		return ctrl.Result{}, nil
@@ -193,6 +197,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			},
 		},
 		replyURLSync.Spec,
+		clientSecretCreds,
 	)
 
 	if err != nil {
@@ -250,25 +255,34 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		the cluster.
 	*/
 	for _, syncer := range replyURLSyncList.Items {
-		var opts []client.ListOption
+		var (
+			opts              []client.ListOption
+			clientSecretCreds azureGraph.ClientSecretCredentials
+			found             bool
+		)
 
 		syncSpec := syncer.Spec
 
-		if syncSpec.ClientID != nil {
-			if err = os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID); err != nil {
+		clientSecretCreds.ClientSecret, found = os.LookupEnv("AZURE_CLIENT_SECRET")
+		if !found {
+			bytes, err := os.ReadFile(defaultSecretPath)
+			if err != nil {
 				return ctrl.Result{}, err
 			}
+			clientSecretCreds.ClientSecret = string(bytes)
+		}
+
+		if syncSpec.ClientID != nil {
+			clientSecretCreds.ClientID = *syncSpec.ClientID
 		} else {
-			workerLog.Info("Environment Variable Missing", "AZURE_CLIENT_ID")
+			workerLog.Info("Missing clientID from replyURLSyncSpec")
 			return ctrl.Result{}, nil
 		}
 
 		if syncSpec.TenantID != nil {
-			if err = os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID); err != nil {
-				return ctrl.Result{}, err
-			}
+			clientSecretCreds.TenantID = *syncSpec.TenantID
 		} else {
-			workerLog.Info("Environment Variable Missing", "AZURE_TENANT_ID")
+			workerLog.Info("Missing tenantID from replyURLSyncSpec")
 			return ctrl.Result{}, nil
 		}
 
@@ -299,7 +313,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			Syncer:       syncer,
 		}
 
-		removedURLS, err := azureGraph.PatchAppRegistration(appRegPatchOptions)
+		removedURLS, err := azureGraph.PatchAppRegistration(clientSecretCreds, appRegPatchOptions)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
