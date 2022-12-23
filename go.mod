@@ -2,8 +2,6 @@ module github.com/hmcts/reply-urls-operator
 
 go 1.19
 
-//replace github.com/microsoftgraph/msgraph-sdk-go => github.com/msl8r/msgraph-sdk-go v0.0.6
-
 require (
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.2.0
 	github.com/go-openapi/swag v0.22.3
