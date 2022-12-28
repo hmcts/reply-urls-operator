@@ -10,7 +10,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.24.2
 	github.com/sykesm/zap-logfmt v0.0.4
-	go.uber.org/zap v1.21.0
+	go.uber.org/zap v1.24.0
 	k8s.io/api v0.25.5
 	k8s.io/apimachinery v0.25.5
 	k8s.io/client-go v0.25.5
