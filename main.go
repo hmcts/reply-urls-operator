@@ -75,7 +75,6 @@ func main() {
 	}
 	logfmtEncoder := zaplogfmt.NewEncoder(configLog)
 
-	// Construct a new logr.logger.
 	logger := zap.New(zap.UseDevMode(false), zap.WriteTo(os.Stdout), zap.Encoder(logfmtEncoder))
 	logf.SetLogger(logger)
 
