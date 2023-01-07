@@ -148,7 +148,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	//var clientSecret string
 	//var found bool
 
-	clientSecret, found := os.LookupEnv("AZURE_CLIENT_SECRET")
+	clientSecret, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET")
 	if !found {
 		secretName := replyURLSync.Spec.ClientSecret.SecretName
 		keyVaultName := replyURLSync.Spec.ClientSecret.KeyVaultName
@@ -265,7 +265,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 
 		syncSpec := syncer.Spec
 
-		clientSecretCreds.ClientSecret, found = os.LookupEnv("AZURE_CLIENT_SECRET")
+		clientSecretCreds.ClientSecret, found = os.LookupEnv("TESTING_AZURE_CLIENT_SECRET")
 		if !found {
 			secretName := syncSpec.ClientSecret.SecretName
 			keyVaultName := syncSpec.ClientSecret.KeyVaultName
