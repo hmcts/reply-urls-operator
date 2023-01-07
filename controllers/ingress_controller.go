@@ -20,6 +20,7 @@ import (
 	"context"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
+	"github.com/hmcts/reply-urls-operator/controllers/pkg/secretsHandler"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -38,7 +39,6 @@ var (
 	defaultDomainFilter = ".*"
 	workerLog           = ctrl.Log
 	ingressList         = v1.IngressList{}
-	defaultSecretPath   = "/mnt/secrets/reply-urls-operator/client-secret"
 )
 
 // IngressReconciler reconciles an Ingress object
@@ -150,24 +150,26 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 	clientSecret, found := os.LookupEnv("AZURE_CLIENT_SECRET")
 	if !found {
-		// Set default path if ClientSecretPath not set
-		if replyURLSync.Spec.ClientSecretPath == nil {
-			replyURLSync.Spec.ClientSecretPath = &defaultSecretPath
+		secretName := replyURLSync.Spec.ClientSecret.SecretName
+		keyVaultName := replyURLSync.Spec.ClientSecret.KeyVaultName
+
+		// Get Secret from key vault
+		secretsList, err := secretsHandler.GetSecretsFromVault(
+			[]string{secretName},
+			keyVaultName,
+		)
+
+		for _, secret := range secretsList.Secrets {
+			if secret.Name == replyURLSync.Spec.ClientSecret.SecretName {
+				clientSecretCreds.ClientSecret = secret.Value
+			}
 		}
 
-		clientSecret, err := os.ReadFile(*replyURLSync.Spec.ClientSecretPath)
-
 		if err != nil {
-			workerLog.Info("unable to read client secret file: " + err.Error())
+			workerLog.Info("unable to get client secret: " + err.Error())
 			return ctrl.Result{}, nil
 		}
 
-		clientSecretCreds.ClientSecret = string(clientSecret)
-
-		if err != nil {
-			workerLog.Info("unable to set up set up client secret variable:" + err.Error())
-			return ctrl.Result{}, nil
-		}
 	} else {
 		clientSecretCreds.ClientSecret = clientSecret
 	}
@@ -265,11 +267,26 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 
 		clientSecretCreds.ClientSecret, found = os.LookupEnv("AZURE_CLIENT_SECRET")
 		if !found {
-			bytes, err := os.ReadFile(defaultSecretPath)
-			if err != nil {
-				return ctrl.Result{}, err
+			secretName := syncSpec.ClientSecret.SecretName
+			keyVaultName := syncSpec.ClientSecret.KeyVaultName
+
+			// Get Secret from key vault
+			secretsList, err := secretsHandler.GetSecretsFromVault(
+				[]string{secretName},
+				keyVaultName,
+			)
+
+			for _, secret := range secretsList.Secrets {
+				if secret.Name == syncSpec.ClientSecret.SecretName {
+					clientSecretCreds.ClientSecret = secret.Value
+				}
 			}
-			clientSecretCreds.ClientSecret = string(bytes)
+
+			if err != nil {
+				workerLog.Info("unable to get client secret: " + err.Error())
+				return ctrl.Result{}, nil
+			}
+
 		}
 
 		if syncSpec.ClientID != nil {

@@ -37,8 +37,18 @@ spec:
             properties:
               clientID:
                 type: string
-              clientSecretPath:
-                type: string
+              clientSecret:
+                description: KeyVaultSecret defines the state of an Azure Key vault
+                  Secret
+                properties:
+                  keyVaultName:
+                    type: string
+                  secretName:
+                    type: string
+                required:
+                - keyVaultName
+                - secretName
+                type: object
               domainFilter:
                 type: string
               ingressClassFilter:
@@ -51,6 +61,7 @@ spec:
                 type: string
             required:
             - clientID
+            - clientSecret
             - objectID
             - tenantID
             type: object
