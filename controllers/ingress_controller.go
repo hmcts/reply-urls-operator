@@ -146,7 +146,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	if *clientSecret.EnvVarClientSecret {
+	if clientSecret.EnvVarClientSecret != nil && *clientSecret.EnvVarClientSecret == true {
 		if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
 			clientSecretCreds.ClientSecret = clientSecretValue
 		}
@@ -264,7 +264,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		syncSpec := syncer.Spec
 		clientSecret := syncSpec.ClientSecret
 
-		if *clientSecret.EnvVarClientSecret {
+		if clientSecret.EnvVarClientSecret != nil && *clientSecret.EnvVarClientSecret == true {
 			if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
 				clientSecretCreds.ClientSecret = clientSecretValue
 			}
