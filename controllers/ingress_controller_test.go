@@ -19,7 +19,7 @@ import (
 var (
 	clientID           = "2816f198-4c26-48bb-8732-e4ca72926ba7"
 	objectID           = "850e80c0-e09e-489d-b12d-5e80cd1bca6a"
-	envVarClientSecret = true
+	envVarClientSecret = "TESTING_AZURE_CLIENT_SECRET"
 	tenantID           = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
 	ingressClass       = "traefik"
 
