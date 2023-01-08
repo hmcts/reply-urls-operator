@@ -3,6 +3,7 @@ package secretsHandler
 import (
 	"context"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/policy"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 )
@@ -10,6 +11,14 @@ import (
 func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, err error) {
 
 	credential, err := azidentity.NewManagedIdentityCredential(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	tokenOptions := policy.TokenRequestOptions{
+		Scopes: nil,
+	}
+	_, err = credential.GetToken(context.TODO(), tokenOptions)
 	if err != nil {
 		return nil, err
 	}
