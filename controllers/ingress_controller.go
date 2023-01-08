@@ -153,7 +153,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 			clientSecretCreds.ClientSecret = clientSecretValue
 		} else {
-			workerLog.Info(fmt.Sprintf("%s environment variable not found", clientSecret.EnvVarClientSecret))
+			workerLog.Info(fmt.Sprintf("%s environment variable not found", *clientSecret.EnvVarClientSecret))
 			return ctrl.Result{}, nil
 		}
 	} else if clientSecret.KeyVaultClientSecret.SecretName != "" && clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
