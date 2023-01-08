@@ -129,29 +129,30 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	for _, replyURLSyncItem := range replyURLSyncList.Items {
 		if *replyURLSyncItem.Spec.IngressClassFilter == *ingressClassName {
 			replyURLSync = replyURLSyncItem
-
+			break
 		} else {
 			return ctrl.Result{}, nil
 		}
 	}
+	syncSpec := replyURLSync.Spec
+	clientSecret := syncSpec.ClientSecret
 
 	clientSecretCreds := azureGraph.ClientSecretCredentials{}
 
-	if replyURLSync.Spec.ClientID != nil {
-		clientSecretCreds.ClientID = *replyURLSync.Spec.ClientID
+	if syncSpec.ClientID != nil {
+		clientSecretCreds.ClientID = *syncSpec.ClientID
 	} else {
 		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
 		return ctrl.Result{}, nil
 	}
 
-	// if client secret var not found try getting secret from file
-	//var clientSecret string
-	//var found bool
-
-	clientSecret, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET")
-	if !found {
-		secretName := replyURLSync.Spec.ClientSecret.SecretName
-		keyVaultName := replyURLSync.Spec.ClientSecret.KeyVaultName
+	if *clientSecret.EnvVarClientSecret {
+		if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
+			clientSecretCreds.ClientSecret = clientSecretValue
+		}
+	} else if clientSecret.KeyVaultClientSecret.SecretName != "" || clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
+		secretName := syncSpec.ClientSecret.KeyVaultClientSecret.SecretName
+		keyVaultName := syncSpec.ClientSecret.KeyVaultClientSecret.KeyVaultName
 
 		// Get Secret from key vault
 		secretsList, err := secretsHandler.GetSecretsFromVault(
@@ -160,7 +161,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		)
 
 		for _, secret := range secretsList.Secrets {
-			if secret.Name == replyURLSync.Spec.ClientSecret.SecretName {
+			if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
 				clientSecretCreds.ClientSecret = secret.Value
 			}
 		}
@@ -170,8 +171,6 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			return ctrl.Result{}, nil
 		}
 
-	} else {
-		clientSecretCreds.ClientSecret = clientSecret
 	}
 
 	if replyURLSync.Spec.TenantID != nil {
@@ -260,15 +259,18 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		var (
 			opts              []client.ListOption
 			clientSecretCreds azureGraph.ClientSecretCredentials
-			found             bool
 		)
 
 		syncSpec := syncer.Spec
+		clientSecret := syncSpec.ClientSecret
 
-		clientSecretCreds.ClientSecret, found = os.LookupEnv("TESTING_AZURE_CLIENT_SECRET")
-		if !found {
-			secretName := syncSpec.ClientSecret.SecretName
-			keyVaultName := syncSpec.ClientSecret.KeyVaultName
+		if *clientSecret.EnvVarClientSecret {
+			if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
+				clientSecretCreds.ClientSecret = clientSecretValue
+			}
+		} else if clientSecret.KeyVaultClientSecret.SecretName != "" || clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
+			secretName := syncSpec.ClientSecret.KeyVaultClientSecret.SecretName
+			keyVaultName := syncSpec.ClientSecret.KeyVaultClientSecret.KeyVaultName
 
 			// Get Secret from key vault
 			secretsList, err := secretsHandler.GetSecretsFromVault(
@@ -277,7 +279,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			)
 
 			for _, secret := range secretsList.Secrets {
-				if secret.Name == syncSpec.ClientSecret.SecretName {
+				if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
 					clientSecretCreds.ClientSecret = secret.Value
 				}
 			}

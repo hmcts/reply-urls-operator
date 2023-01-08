@@ -28,17 +28,22 @@ type ReplyURLSyncSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	TenantID           *string         `json:"tenantID"`
-	ClientID           *string         `json:"clientID"`
-	ObjectID           *string         `json:"objectID"`
-	ClientSecret       *KeyVaultSecret `json:"clientSecret"`
-	DomainFilter       *string         `json:"domainFilter,omitempty"`
-	IngressClassFilter *string         `json:"ingressClassFilter,omitempty"`
-	ReplyURLFilter     *string         `json:"replyURLFilter,omitempty"`
+	TenantID           *string       `json:"tenantID"`
+	ClientID           *string       `json:"clientID"`
+	ObjectID           *string       `json:"objectID"`
+	ClientSecret       *ClientSecret `json:"clientSecret"`
+	DomainFilter       *string       `json:"domainFilter,omitempty"`
+	IngressClassFilter *string       `json:"ingressClassFilter,omitempty"`
+	ReplyURLFilter     *string       `json:"replyURLFilter,omitempty"`
 }
 
 // KeyVaultSecret defines the state of an Azure Key vault Secret
-type KeyVaultSecret struct {
+type ClientSecret struct {
+	KeyVaultClientSecret *KeyVaultClientSecret `json:"KeyVaultClientSecret,omitempty"`
+	EnvVarClientSecret   *bool                 `json:"envVarClientSecret,omitempty"`
+}
+
+type KeyVaultClientSecret struct {
 	KeyVaultName string `json:"keyVaultName"`
 	SecretName   string `json:"secretName"`
 }

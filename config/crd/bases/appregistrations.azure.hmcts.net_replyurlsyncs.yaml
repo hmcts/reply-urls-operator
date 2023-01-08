@@ -41,13 +41,18 @@ spec:
                 description: KeyVaultSecret defines the state of an Azure Key vault
                   Secret
                 properties:
-                  keyVaultName:
-                    type: string
-                  secretName:
-                    type: string
-                required:
-                - keyVaultName
-                - secretName
+                  KeyVaultClientSecret:
+                    properties:
+                      keyVaultName:
+                        type: string
+                      secretName:
+                        type: string
+                    required:
+                    - keyVaultName
+                    - secretName
+                    type: object
+                  envVarClientSecret:
+                    type: boolean
                 type: object
               domainFilter:
                 type: string
