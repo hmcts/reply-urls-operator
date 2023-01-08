@@ -42,7 +42,7 @@ spec:
                   Secret
                 properties:
                   envVarClientSecret:
-                    type: boolean
+                    type: string
                   keyVaultClientSecret:
                     properties:
                       keyVaultName:

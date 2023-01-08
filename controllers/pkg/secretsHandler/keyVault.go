@@ -3,47 +3,53 @@ package secretsHandler
 import (
 	"context"
 	"fmt"
-	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 )
 
-func keyVaultAuthManagedIdentity() (credential *azidentity.ManagedIdentityCredential, AuthErr error) {
+func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, err error) {
 
 	credential, err := azidentity.NewManagedIdentityCredential(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return credential, nil
+	client, err = azsecrets.NewClient(keyVaultURI, credential, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
-func keyVaultAuthAzureCLI() (credential *azidentity.AzureCLICredential, AuthErr error) {
+func keyVaultAuthAzureCLI(keyVaultURI string) (client *azsecrets.Client, err error) {
 	credential, err := azidentity.NewAzureCLICredential(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return credential, nil
+	client, err = azsecrets.NewClient(keyVaultURI, credential, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func GetSecretsFromVault(secretNameList []string, keyVaultName string) (*SecretList, error) {
 
-	secretList := &SecretList{}
-	var credential azcore.TokenCredential
-	keyVaultURI := fmt.Sprintf("https://%s.vault.azure.net/", keyVaultName)
+	var (
+		secretList  = &SecretList{}
+		keyVaultURI = fmt.Sprintf("https://%s.vault.azure.net/", keyVaultName)
+		client      = &azsecrets.Client{}
+	)
 
-	credential, err := keyVaultAuthAzureCLI()
+	client, err := keyVaultAuthManagedIdentity(keyVaultURI)
 	if err != nil {
-		credential, err = keyVaultAuthManagedIdentity()
+		client, err = keyVaultAuthAzureCLI(keyVaultURI)
 		if err != nil {
-
 			return nil, err
 		}
-	}
-	client, err := azsecrets.NewClient(keyVaultURI, credential, nil)
-	if err != nil {
-		return nil, err
 	}
 
 	for _, secretName := range secretNameList {

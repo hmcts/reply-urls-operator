@@ -40,7 +40,7 @@ type ReplyURLSyncSpec struct {
 // KeyVaultSecret defines the state of an Azure Key vault Secret
 type ClientSecret struct {
 	KeyVaultClientSecret *KeyVaultClientSecret `json:"keyVaultClientSecret,omitempty"`
-	EnvVarClientSecret   *bool                 `json:"envVarClientSecret,omitempty"`
+	EnvVarClientSecret   *string               `json:"envVarClientSecret,omitempty"`
 }
 
 type KeyVaultClientSecret struct {

@@ -18,6 +18,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
 	"github.com/hmcts/reply-urls-operator/controllers/pkg/secretsHandler"
@@ -146,13 +147,16 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		return ctrl.Result{}, nil
 	}
 
-	if clientSecret.EnvVarClientSecret != nil && *clientSecret.EnvVarClientSecret == true {
-		if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
+	if clientSecret.EnvVarClientSecret != nil {
+		if clientSecretValue, found := os.LookupEnv(*clientSecret.EnvVarClientSecret); found {
 			clientSecretCreds.ClientSecret = clientSecretValue
+		} else {
+			workerLog.Info(fmt.Sprintf("%s environment variable not found", clientSecret.EnvVarClientSecret))
+			return ctrl.Result{}, nil
 		}
 	} else if clientSecret.KeyVaultClientSecret.SecretName != "" || clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
-		secretName := syncSpec.ClientSecret.KeyVaultClientSecret.SecretName
-		keyVaultName := syncSpec.ClientSecret.KeyVaultClientSecret.KeyVaultName
+		secretName := clientSecret.KeyVaultClientSecret.SecretName
+		keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
 
 		// Get Secret from key vault
 		secretsList, err := secretsHandler.GetSecretsFromVault(
@@ -160,12 +164,12 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			keyVaultName,
 		)
 		if err != nil {
-			workerLog.Error(err, "unable to get secret")
+			return ctrl.Result{}, err
 		}
 		if len(secretsList.Secrets) > 0 {
 
 			for _, secret := range secretsList.Secrets {
-				if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
+				if secret.Name == clientSecret.KeyVaultClientSecret.SecretName {
 					clientSecretCreds.ClientSecret = secret.Value
 				}
 			}
@@ -266,8 +270,8 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		syncSpec := syncer.Spec
 		clientSecret := syncSpec.ClientSecret
 
-		if clientSecret.EnvVarClientSecret != nil && *clientSecret.EnvVarClientSecret == true {
-			if clientSecretValue, found := os.LookupEnv("TESTING_AZURE_CLIENT_SECRET"); found {
+		if clientSecret.EnvVarClientSecret != nil {
+			if clientSecretValue, found := os.LookupEnv(*clientSecret.EnvVarClientSecret); found {
 				clientSecretCreds.ClientSecret = clientSecretValue
 			}
 		} else if clientSecret.KeyVaultClientSecret.SecretName != "" || clientSecret.KeyVaultClientSecret.KeyVaultName != "" {

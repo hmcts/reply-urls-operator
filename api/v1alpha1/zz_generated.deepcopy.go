@@ -35,7 +35,7 @@ func (in *ClientSecret) DeepCopyInto(out *ClientSecret) {
 	}
 	if in.EnvVarClientSecret != nil {
 		in, out := &in.EnvVarClientSecret, &out.EnvVarClientSecret
-		*out = new(bool)
+		*out = new(string)
 		**out = **in
 	}
 }
