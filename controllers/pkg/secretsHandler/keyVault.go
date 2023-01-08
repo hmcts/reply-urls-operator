@@ -55,10 +55,14 @@ func GetSecretsFromVault(secretNameList []string, keyVaultName string) (*SecretL
 
 	client, err := keyVaultAuthManagedIdentity(keyVaultURI)
 	if err != nil {
+
 		client, err = keyVaultAuthAzureCLI(keyVaultURI)
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println("using azCli")
+	} else {
+		fmt.Println("using mi")
 	}
 
 	for _, secretName := range secretNameList {
