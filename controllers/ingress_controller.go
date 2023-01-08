@@ -159,18 +159,20 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			[]string{secretName},
 			keyVaultName,
 		)
-
-		for _, secret := range secretsList.Secrets {
-			if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
-				clientSecretCreds.ClientSecret = secret.Value
-			}
-		}
-
 		if err != nil {
-			workerLog.Info("unable to get client secret: " + err.Error())
-			return ctrl.Result{}, nil
+			workerLog.Error(err, "unable to get secret")
 		}
+		if len(secretsList.Secrets) > 0 {
 
+			for _, secret := range secretsList.Secrets {
+				if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
+					clientSecretCreds.ClientSecret = secret.Value
+				}
+			}
+		} else {
+			workerLog.Info("secret" + secretName + "not found")
+
+		}
 	}
 
 	if replyURLSync.Spec.TenantID != nil {
