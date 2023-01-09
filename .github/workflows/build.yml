@@ -27,10 +27,10 @@ jobs:
         with:
           go-version: 1.19
 
-      - name: Download Test tools
-        run: |
-          make envtest
-          go install github.com/jstemmer/go-junit-report@latest
+#      - name: Download Test tools
+#        run: |
+#          make envtest
+#          go install github.com/jstemmer/go-junit-report@latest
 
       # Build Reply URLs Operator
       - name: Build
@@ -39,6 +39,20 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
+
+      - name: Download Test tools
+        run: |
+          make envtest
+          go install github.com/jstemmer/go-junit-report@latest
 
       - name: Run Go fmt, vet and test
         run: make test-ci
@@ -46,6 +60,9 @@ jobs:
           GOOS: linux
           GOARCH: amd64
 
+  Push:
+    runs-on: ubuntu-latest
+    if: ${{ success() }}
       - uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
