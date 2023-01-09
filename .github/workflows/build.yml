@@ -39,6 +39,11 @@ jobs:
           GOOS: linux
           GOARCH: amd64
           CGO_ENABLED: 0
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: operator-binary
+          path: ./manager
   Test:
     runs-on: ubuntu-latest
     steps:
@@ -63,6 +68,14 @@ jobs:
   Push:
     runs-on: ubuntu-latest
     if: ${{ success() }}
+
+    steps:
+      - uses: actions/checkout@main
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: operator-binary
+
       - uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
