@@ -15,8 +15,9 @@ func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, 
 		return nil, err
 	}
 
+	scope := []string{"https://graph.microsoft.com/.default"}
 	tokenOptions := policy.TokenRequestOptions{
-		Scopes: nil,
+		Scopes: scope,
 	}
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
 	fmt.Println("unable to auth using mi")
@@ -34,6 +35,16 @@ func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, 
 
 func keyVaultAuthAzureCLI(keyVaultURI string) (client *azsecrets.Client, err error) {
 	credential, err := azidentity.NewAzureCLICredential(nil)
+	if err != nil {
+		return nil, err
+	}
+
+	scope := []string{"https://graph.microsoft.com/.default"}
+	tokenOptions := policy.TokenRequestOptions{
+		Scopes: scope,
+	}
+	_, err = credential.GetToken(context.TODO(), tokenOptions)
+	fmt.Println("unable to auth using mi")
 	if err != nil {
 		return nil, err
 	}
