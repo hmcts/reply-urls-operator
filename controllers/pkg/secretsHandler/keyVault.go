@@ -19,6 +19,7 @@ func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, 
 		Scopes: nil,
 	}
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
+	fmt.Println("unable to auth using mi")
 	if err != nil {
 		return nil, err
 	}
