@@ -160,9 +160,9 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		secretName := clientSecret.KeyVaultClientSecret.SecretName
 		keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
 
-		var clientSecret *string
+		var cs *string
 		// Get Secret from key vault
-		clientSecret, err = secrets.GetSecretFromVault(
+		cs, err = secrets.GetSecretFromVault(
 			secretName,
 			keyVaultName,
 		)
@@ -173,6 +173,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		if clientSecret == nil {
 			workerLog.Info("secret" + secretName + "empty")
 		}
+		clientSecretCreds.ClientSecret = *cs
 	}
 
 	if replyURLSync.Spec.TenantID != nil {
@@ -274,9 +275,9 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			secretName := clientSecret.KeyVaultClientSecret.SecretName
 			keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
 
-			var clientSecret *string
+			var cs *string
 			// Get Secret from key vault
-			clientSecret, err = secrets.GetSecretFromVault(
+			cs, err = secrets.GetSecretFromVault(
 				secretName,
 				keyVaultName,
 			)
@@ -284,10 +285,10 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			if err != nil {
 				return ctrl.Result{}, err
 			}
-			if clientSecret == nil {
+			if cs == nil {
 				workerLog.Info("secret" + secretName + "empty")
 			}
-
+			clientSecretCreds.ClientSecret = *cs
 		}
 
 		if syncSpec.ClientID != nil {
