@@ -28,11 +28,6 @@ jobs:
         with:
           go-version: 1.19
 
-#      - name: Download Test tools
-#        run: |
-#          make envtest
-#          go install github.com/jstemmer/go-junit-report@latest
-
       # Build Reply URLs Operator
       - name: Build
         run: go build -v -a -o manager main.go
@@ -76,8 +71,6 @@ jobs:
   Push:
     runs-on: ubuntu-latest
     needs: [Build, Test]
-#    if: ${{ needs.build.result == 'success' && needs.build.result == 'success' }}
-
     steps:
       - uses: actions/checkout@main
 
