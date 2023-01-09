@@ -1,4 +1,4 @@
-package secretsHandler
+package secrets
 
 import (
 	"context"
@@ -8,6 +8,12 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets"
 )
 
+var (
+	tokenOptions = policy.TokenRequestOptions{
+		Scopes: []string{"https://graph.microsoft.com/.default"},
+	}
+)
+
 func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, err error) {
 
 	credential, err := azidentity.NewManagedIdentityCredential(nil)
@@ -15,10 +21,7 @@ func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, 
 		return nil, err
 	}
 
-	scope := []string{"https://graph.microsoft.com/.default"}
-	tokenOptions := policy.TokenRequestOptions{
-		Scopes: scope,
-	}
+	// Test getting a token
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
 
 	if err != nil {
@@ -39,10 +42,7 @@ func keyVaultAuthAzureCLI(keyVaultURI string) (client *azsecrets.Client, err err
 		return nil, err
 	}
 
-	scope := []string{"https://graph.microsoft.com/.default"}
-	tokenOptions := policy.TokenRequestOptions{
-		Scopes: scope,
-	}
+	// Test getting a token
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
 
 	if err != nil {
@@ -57,36 +57,30 @@ func keyVaultAuthAzureCLI(keyVaultURI string) (client *azsecrets.Client, err err
 	return client, nil
 }
 
-func GetSecretsFromVault(secretNameList []string, keyVaultName string) (*SecretList, error) {
+func GetSecretFromVault(secretName string, keyVaultName string) (secret *string, err error) {
 
 	var (
-		secretList  = &SecretList{}
 		keyVaultURI = fmt.Sprintf("https://%s.vault.azure.net/", keyVaultName)
 		client      = &azsecrets.Client{}
 	)
 
-	client, err := keyVaultAuthManagedIdentity(keyVaultURI)
+	client, err = keyVaultAuthManagedIdentity(keyVaultURI)
 	if err != nil {
 
 		client, err = keyVaultAuthAzureCLI(keyVaultURI)
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
-	for _, secretName := range secretNameList {
-		// Get a secret. An empty string version gets the latest version of the secret.
-		version := ""
-		resp, err := client.GetSecret(context.TODO(), secretName, version, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		if *resp.Value != "" {
-			secretList.Secrets = append(secretList.Secrets, Secret{Name: secretName, Value: *resp.Value})
-		}
+	// empty string version gets the latest version of the secret
+	version := ""
+	resp, err := client.GetSecret(context.TODO(), secretName, version, nil)
+	if err != nil {
+		return nil, err
 	}
 
-	return secretList, nil
+	secret = resp.Value
+
+	return secret, nil
 }

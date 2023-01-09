@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
-	"github.com/hmcts/reply-urls-operator/controllers/pkg/secretsHandler"
+	"github.com/hmcts/reply-urls-operator/controllers/pkg/secrets"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -160,24 +160,18 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		secretName := clientSecret.KeyVaultClientSecret.SecretName
 		keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
 
+		var clientSecret *string
 		// Get Secret from key vault
-		secretsList, err := secretsHandler.GetSecretsFromVault(
-			[]string{secretName},
+		clientSecret, err = secrets.GetSecretFromVault(
+			secretName,
 			keyVaultName,
 		)
+
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		if len(secretsList.Secrets) > 0 {
-
-			for _, secret := range secretsList.Secrets {
-				if secret.Name == clientSecret.KeyVaultClientSecret.SecretName {
-					clientSecretCreds.ClientSecret = secret.Value
-				}
-			}
-		} else {
-			workerLog.Info("secret" + secretName + "not found")
-
+		if clientSecret == nil {
+			workerLog.Info("secret" + secretName + "empty")
 		}
 	}
 
@@ -277,24 +271,21 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 				clientSecretCreds.ClientSecret = clientSecretValue
 			}
 		} else if clientSecret.KeyVaultClientSecret.SecretName != "" && clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
-			secretName := syncSpec.ClientSecret.KeyVaultClientSecret.SecretName
-			keyVaultName := syncSpec.ClientSecret.KeyVaultClientSecret.KeyVaultName
+			secretName := clientSecret.KeyVaultClientSecret.SecretName
+			keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
 
+			var clientSecret *string
 			// Get Secret from key vault
-			secretsList, err := secretsHandler.GetSecretsFromVault(
-				[]string{secretName},
+			clientSecret, err = secrets.GetSecretFromVault(
+				secretName,
 				keyVaultName,
 			)
 
-			for _, secret := range secretsList.Secrets {
-				if secret.Name == syncSpec.ClientSecret.KeyVaultClientSecret.SecretName {
-					clientSecretCreds.ClientSecret = secret.Value
-				}
-			}
-
 			if err != nil {
-				workerLog.Info("unable to get client secret: " + err.Error())
-				return ctrl.Result{}, nil
+				return ctrl.Result{}, err
+			}
+			if clientSecret == nil {
+				workerLog.Info("secret" + secretName + "empty")
 			}
 
 		}
