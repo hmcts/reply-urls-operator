@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: operator-binary
+          name: manager
           path: ./manager
   Test:
     runs-on: ubuntu-latest
@@ -75,7 +75,11 @@ jobs:
 
       - uses: actions/download-artifact@v2
         with:
-          name: operator-binary
+          name: manager
+          path: ./
+
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - uses: azure/login@v1
         with:
