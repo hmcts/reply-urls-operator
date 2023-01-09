@@ -23,9 +23,6 @@ var (
 	tenantID           = "21ae17a1-694c-4005-8e0f-6a0e51c35a5f"
 	ingressClass       = "traefik"
 
-	keyVaultName = "dummy"
-	secretName   = "dummy"
-
 	replyURLSyncName      = "test-reply-url-sync"
 	replyURLSyncNamespace = "default"
 )

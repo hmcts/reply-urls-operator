@@ -37,12 +37,13 @@ type ReplyURLSyncSpec struct {
 	ReplyURLFilter     *string       `json:"replyURLFilter,omitempty"`
 }
 
-// KeyVaultSecret defines the state of an Azure Key vault Secret
+// ClientSecret defines the state of the client secret used to authenticate
 type ClientSecret struct {
 	KeyVaultClientSecret *KeyVaultClientSecret `json:"keyVaultClientSecret,omitempty"`
 	EnvVarClientSecret   *string               `json:"envVarClientSecret,omitempty"`
 }
 
+// KeyVaultClientSecret defines the state of a client secret retrieved from an Azure Key Vault
 type KeyVaultClientSecret struct {
 	KeyVaultName string `json:"keyVaultName"`
 	SecretName   string `json:"secretName"`
