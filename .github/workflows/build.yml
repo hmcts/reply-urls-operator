@@ -16,6 +16,7 @@ env:
   APP_NAME: reply-urls-operator
   VAR_FILE_PATH: ${{ github.workspace }}/.github/workflows
   TESTING_AZURE_CLIENT_SECRET: ${{ secrets.TESTING_CLIENT_SECRET }}
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -64,6 +65,13 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          junit_files: "report.xml"
+          comment_mode: always
 
   Push:
     runs-on: ubuntu-latest
@@ -143,13 +151,6 @@ jobs:
 #        run: |
 #          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
 #        shell: bash
-
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          junit_files: "report.xml"
-          comment_mode: always
 
       - name: Az logout
         run: |
