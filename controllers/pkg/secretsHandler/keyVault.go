@@ -20,7 +20,7 @@ func keyVaultAuthManagedIdentity(keyVaultURI string) (client *azsecrets.Client, 
 		Scopes: scope,
 	}
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
-	fmt.Println("unable to auth using mi")
+
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func keyVaultAuthAzureCLI(keyVaultURI string) (client *azsecrets.Client, err err
 		Scopes: scope,
 	}
 	_, err = credential.GetToken(context.TODO(), tokenOptions)
-	fmt.Println("unable to auth using mi")
+
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +72,7 @@ func GetSecretsFromVault(secretNameList []string, keyVaultName string) (*SecretL
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println("using azCli")
-	} else {
-		fmt.Println("using mi")
+
 	}
 
 	for _, secretName := range secretNameList {
