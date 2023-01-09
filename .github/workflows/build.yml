@@ -86,14 +86,14 @@ jobs:
           name: manager
           path: ./
 
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Fix permissions for binary
+        run: chmod +x manager
 
       - uses: azure/login@v1
         with:
           creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","resourceManagerEndpointUrl":"https://management.azure.com","tenantId":"${{ secrets.TENANT_ID }}"}'
 
-      - name: Load SDS vars
+      - name: Load vars
         run: |
           cat ${VAR_FILE} >> $GITHUB_ENV
         shell: bash
@@ -125,32 +125,6 @@ jobs:
         run: |
           ./scripts/docker.sh push pr-${{ env.GITHUB_EVENT_NUMBER }}
         shell: bash
-#
-#      - name: Load CFT vars
-#        run: |
-#          cat ${VAR_FILE} >> $GITHUB_ENV
-#        shell: bash
-#        env:
-#          VAR_FILE: ${{ env.VAR_FILE_PATH }}/cft.env
-#
-#      - name: Get ACR Token CFT
-#        uses: azure/CLI@v1
-#        with:
-#          inlineScript: |
-#            cft_token=$(az acr login -n ${{ env.REGISTRY_NAME }} --expose-token | jq -r .accessToken)
-#            echo "CFT_ACR_TOKEN=${cft_token}" >> $GITHUB_ENV
-#      # Connect to Azure Container Registry (ACR)
-#      - uses: azure/docker-login@v1
-#        with:
-#          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-#          username: 00000000-0000-0000-0000-000000000000
-#          password: ${{ env.CFT_ACR_TOKEN }}
-#
-#      # Container build and push to an Azure Container Registry (ACR)
-#      - name: Build and Push PR Container Image - CFT
-#        run: |
-#          ./scripts/docker.sh pr-${{ env.GITHUB_EVENT_NUMBER }}
-#        shell: bash
 
       - name: Az logout
         run: |
