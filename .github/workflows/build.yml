@@ -67,7 +67,8 @@ jobs:
 
   Push:
     runs-on: ubuntu-latest
-    if: ${{ success() }}
+    needs: [Build, Test]
+#    if: ${{ needs.build.result == 'success' && needs.build.result == 'success' }}
 
     steps:
       - uses: actions/checkout@main
