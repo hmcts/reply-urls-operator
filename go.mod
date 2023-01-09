@@ -7,7 +7,7 @@ require (
 	github.com/go-openapi/swag v0.22.3
 	github.com/microsoft/kiota-authentication-azure-go v0.5.0
 	github.com/microsoftgraph/msgraph-sdk-go v0.50.0
-	github.com/onsi/ginkgo/v2 v2.6.1
+	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.24.2
 	github.com/sykesm/zap-logfmt v0.0.4
 	go.uber.org/zap v1.24.0
