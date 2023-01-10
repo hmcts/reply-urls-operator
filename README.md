@@ -104,26 +104,51 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
    * `domainFilter` (optional): Regex of the domain of the Ingress Hosts you want to manage e.g. ".*.sandbox.platform.hmcts.net". Defaults to match all ".*"
    * `replyURLFilter` (optional): Regex of the reply URLs you want to manage e.g. ".*.sandbox.platform.hmcts.net". This can be set to something different to the domainFilter if you would only like to delete certain reply URLS from the app registration. Defaults to ".*"
    * `clientID`: Client ID of the app registration you are authenticating with.
+   * `clientSecret`: Configuration for the client secret. either `keyVaultClientSecret` or `envVarClientSecret`
    * `objectID`: Client ID of the app registration you want to sync ReplyURLs with.
    * `tenantID`: Tenant ID of the app registration you are authenticating with.
+
+   Client Secret config:
+
+   Get client secret from Key Vault:
+     ```yaml
+     clientSecret:
+       keyVaultClientSecret:
+         secretName: reply-urls-operator-client-secret
+         keyVaultName: reply-urls-kv
+     ```
+
+   Get client secret from env var named `TESTING_AZURE_CLIENT_SECRET`
+     ```yaml
+     clientSecret: 
+      envVarClientSecret: TESTING_AZURE_CLIENT_SECRET
+     ```
 
    There is a sample ReplyURLSync config in `config/samples/reply-url-sync-example.yaml` which can be update if needs be. 
 
    Example yaml file configuration for the ReplyURLSync:
 
-   ```yaml
-   apiVersion: appregistrations.azure.hmcts.net/v1alpha1
-   kind: ReplyURLSync
-   metadata:
-     name: replyurlsync-sample
-   spec:
-     ingressClassFilter: traefik
-     domainFilter: .*.sandbox.platform.hmcts.net
-     clientID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-     objectID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-     tenantID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-   ```
-   The above yaml will watch for any events on Ingresses that have the Ingress Class Name of `traefik` and a host that has a suffix of `.sandbox.platform.hmcts.net`.
+      ```yaml
+      apiVersion: appregistrations.azure.hmcts.net/v1alpha1
+      kind: ReplyURLSync
+      metadata:
+        name: replyurlsync-sample
+      spec:
+        ingressClassFilter: traefik
+        domainFilter: .*.sandbox.platform.hmcts.net
+        clientID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        clientSecret:
+          keyVaultClientSecret:
+          secretName: reply-urls-operator-client-secret
+          keyVaultName: reply-urls-kv
+        objectID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        tenantID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      ```
+   The above yaml will:
+   - watch for any events on Ingresses that have the Ingress Class Name of `traefik`
+   - manage hosts that have a suffix of `.sandbox.platform.hmcts.net`
+   - get the client secret from a key vault called reply-urls-kv
+
    **Note:** We're not setting a value for the replyURLFilter so the operator will manage the entire list of Reply URLs it finds associated with the App Registration. This means that if someone or something has added a Reply URL manually or another operator is also adding to the list, no matter what the domain, this operator will delete any URL it doesn't find associated to an Ingress on the cluster it is deployed to.
 
 5. Install CRDs, RBAC and the Operator:
