@@ -46,7 +46,7 @@ func PatchAppReplyURLs(appId string, urls []string, graphClient *msgraphsdk.Grap
 	return nil
 }
 
-func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err error) {
+func PatchAppRegistration(creds ClientSecretCredentials, patchOptions PatchOptions) (removedURLS []string, err error) {
 	var (
 		newRedirectURLS []string
 
@@ -56,7 +56,7 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 		replyURLFilter         = syncSpec.ReplyURLFilter
 	)
 
-	azureAppClient, err := CreateClient()
+	azureAppClient, err := CreateClient(&creds)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func PatchAppRegistration(patchOptions PatchOptions) (removedURLS []string, err 
 	return removedURLS, nil
 }
 
-func ProcessHost(ingresses *v1.IngressList, syncSpec v1alpha1.ReplyURLSyncSpec) (result ctrl.Result, err error) {
+func ProcessHost(ingresses *v1.IngressList, syncSpec v1alpha1.ReplyURLSyncSpec, creds ClientSecretCredentials) (result ctrl.Result, err error) {
 
 	var (
 		urls           []string
@@ -121,7 +121,7 @@ func ProcessHost(ingresses *v1.IngressList, syncSpec v1alpha1.ReplyURLSyncSpec) 
 		workerLog      = ctrl.Log
 	)
 
-	if azureAppClient, err = CreateClient(); err != nil {
+	if azureAppClient, err = CreateClient(&creds); err != nil {
 		return ctrl.Result{}, err
 	}
 

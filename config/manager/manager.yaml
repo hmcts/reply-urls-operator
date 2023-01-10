@@ -17,6 +17,7 @@ spec:
         kubectl.kubernetes.io/default-container: manager
       labels:
         control-plane: reply-urls-operator
+        aadpodidbinding: aks-pod-identity-mi
     spec:
       securityContext:
         runAsNonRoot: true
@@ -35,13 +36,6 @@ spec:
         image: sdshmctspublic.azurecr.io/reply-urls-operator:prod-c4620b7-20220905093200
         imagePullPolicy: Always
         name: manager
-        env:
-          - name: AZURE_CLIENT_SECRET
-            valueFrom:
-              secretKeyRef:
-                name: reply-urls-operator
-                key:  azure-client-secret
-                optional: false
         securityContext:
           allowPrivilegeEscalation: false
         # TODO(user): uncomment for common cases that do not require escalating privileges

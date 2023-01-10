@@ -18,8 +18,10 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"github.com/hmcts/reply-urls-operator/api/v1alpha1"
 	azureGraph "github.com/hmcts/reply-urls-operator/controllers/pkg/azure"
+	"github.com/hmcts/reply-urls-operator/controllers/pkg/secrets"
 	v1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -128,25 +130,54 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	for _, replyURLSyncItem := range replyURLSyncList.Items {
 		if *replyURLSyncItem.Spec.IngressClassFilter == *ingressClassName {
 			replyURLSync = replyURLSyncItem
-
+			break
 		} else {
 			return ctrl.Result{}, nil
 		}
 	}
 
-	if replyURLSync.Spec.ClientID != nil {
-		if err = os.Setenv("AZURE_CLIENT_ID", *replyURLSync.Spec.ClientID); err != nil {
-			return ctrl.Result{}, err
-		}
+	syncSpec := replyURLSync.Spec
+	clientSecret := syncSpec.ClientSecret
+
+	clientSecretCreds := azureGraph.ClientSecretCredentials{}
+
+	if syncSpec.ClientID != nil {
+		clientSecretCreds.ClientID = *syncSpec.ClientID
 	} else {
 		workerLog.Info("Missing configuration", "ClientID was not found in sync config")
 		return ctrl.Result{}, nil
 	}
 
-	if replyURLSync.Spec.TenantID != nil {
-		if err = os.Setenv("AZURE_TENANT_ID", *replyURLSync.Spec.TenantID); err != nil {
+	if clientSecret.EnvVarClientSecret != nil {
+		if clientSecretValue, found := os.LookupEnv(*clientSecret.EnvVarClientSecret); found {
+
+			clientSecretCreds.ClientSecret = clientSecretValue
+		} else {
+			workerLog.Info(fmt.Sprintf("%s environment variable not found", *clientSecret.EnvVarClientSecret))
+			return ctrl.Result{}, nil
+		}
+	} else if clientSecret.KeyVaultClientSecret.SecretName != "" && clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
+		secretName := clientSecret.KeyVaultClientSecret.SecretName
+		keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
+
+		var cs *string
+		// Get Secret from key vault
+		cs, err = secrets.GetSecretFromVault(
+			secretName,
+			keyVaultName,
+		)
+
+		if err != nil {
 			return ctrl.Result{}, err
 		}
+		if clientSecret == nil {
+			workerLog.Info("secret" + secretName + "empty")
+		}
+		clientSecretCreds.ClientSecret = *cs
+	}
+
+	if replyURLSync.Spec.TenantID != nil {
+		clientSecretCreds.TenantID = *replyURLSync.Spec.TenantID
 	} else {
 		workerLog.Info("Missing configuration", "TenantID was not found in sync config")
 		return ctrl.Result{}, nil
@@ -170,6 +201,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 			},
 		},
 		replyURLSync.Spec,
+		clientSecretCreds,
 	)
 
 	if err != nil {
@@ -227,25 +259,49 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 		the cluster.
 	*/
 	for _, syncer := range replyURLSyncList.Items {
-		var opts []client.ListOption
+		var (
+			opts              []client.ListOption
+			clientSecretCreds azureGraph.ClientSecretCredentials
+		)
 
 		syncSpec := syncer.Spec
+		clientSecret := syncSpec.ClientSecret
 
-		if syncSpec.ClientID != nil {
-			if err = os.Setenv("AZURE_CLIENT_ID", *syncSpec.ClientID); err != nil {
+		if clientSecret.EnvVarClientSecret != nil {
+			if clientSecretValue, found := os.LookupEnv(*clientSecret.EnvVarClientSecret); found {
+				clientSecretCreds.ClientSecret = clientSecretValue
+			}
+		} else if clientSecret.KeyVaultClientSecret.SecretName != "" && clientSecret.KeyVaultClientSecret.KeyVaultName != "" {
+			secretName := clientSecret.KeyVaultClientSecret.SecretName
+			keyVaultName := clientSecret.KeyVaultClientSecret.KeyVaultName
+
+			var cs *string
+			// Get Secret from key vault
+			cs, err = secrets.GetSecretFromVault(
+				secretName,
+				keyVaultName,
+			)
+
+			if err != nil {
 				return ctrl.Result{}, err
 			}
+			if cs == nil {
+				workerLog.Info("secret" + secretName + "empty")
+			}
+			clientSecretCreds.ClientSecret = *cs
+		}
+
+		if syncSpec.ClientID != nil {
+			clientSecretCreds.ClientID = *syncSpec.ClientID
 		} else {
-			workerLog.Info("Environment Variable Missing", "AZURE_CLIENT_ID")
+			workerLog.Info("Missing clientID from replyURLSyncSpec")
 			return ctrl.Result{}, nil
 		}
 
 		if syncSpec.TenantID != nil {
-			if err = os.Setenv("AZURE_TENANT_ID", *syncSpec.TenantID); err != nil {
-				return ctrl.Result{}, err
-			}
+			clientSecretCreds.TenantID = *syncSpec.TenantID
 		} else {
-			workerLog.Info("Environment Variable Missing", "AZURE_TENANT_ID")
+			workerLog.Info("Missing tenantID from replyURLSyncSpec")
 			return ctrl.Result{}, nil
 		}
 
@@ -276,7 +332,7 @@ func (r *IngressReconciler) cleanReplyURLSyncList() (result ctrl.Result, err err
 			Syncer:       syncer,
 		}
 
-		removedURLS, err := azureGraph.PatchAppRegistration(appRegPatchOptions)
+		removedURLS, err := azureGraph.PatchAppRegistration(clientSecretCreds, appRegPatchOptions)
 		if err != nil {
 			return ctrl.Result{}, err
 		}

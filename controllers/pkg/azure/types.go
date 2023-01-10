@@ -6,3 +6,9 @@ type PatchOptions struct {
 	IngressHosts []string
 	Syncer       v1alpha1.ReplyURLSync
 }
+
+type ClientSecretCredentials struct {
+	TenantID     string
+	ClientID     string
+	ClientSecret string
+}
