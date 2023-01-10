@@ -124,7 +124,7 @@ The commands below will deploy the Custom Resource Definitions (CRDs), RBAC, the
       envVarClientSecret: TESTING_AZURE_CLIENT_SECRET
      ```
 
-   There is a sample ReplyURLSync config in `config/samples/reply-url-sync-example.yaml` which can be update if needs be. 
+   There is a sample ReplyURLSync config in `config/samples/reply-url-sync-example.yaml` which can be updated if needs be. 
 
    Example yaml file configuration for the ReplyURLSync:
 
