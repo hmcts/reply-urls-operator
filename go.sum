@@ -227,10 +227,14 @@ github.com/microsoft/kiota-abstractions-go v0.15.1 h1:RgN8h9Z3AoFav1K4ODVSkmA8Es
 github.com/microsoft/kiota-abstractions-go v0.15.1/go.mod h1:YqOu8G6bZTG0eCIWrmEny8PaF750uaw7tLFac4psf+4=
 github.com/microsoft/kiota-abstractions-go v0.15.2 h1:Pp78BbqPvkF2mAMH0Ph37ymwfSH7uF9iYfY1fZ8g630=
 github.com/microsoft/kiota-abstractions-go v0.15.2/go.mod h1:RT/s9sCzg49i4iO7e2qhyWmX+DlJDgC0P+Wp8fKQQfo=
+github.com/microsoft/kiota-abstractions-go v0.16.0 h1:DZ1L4YsRsQw39iPGnVq2fQkqLXMsazdPwmWsnaH4EZg=
+github.com/microsoft/kiota-abstractions-go v0.16.0/go.mod h1:RT/s9sCzg49i4iO7e2qhyWmX+DlJDgC0P+Wp8fKQQfo=
 github.com/microsoft/kiota-authentication-azure-go v0.5.0 h1:RVA/tTgMnDIN3u4qPZtvYvVRsQDOFkd3yvi6KXjZJko=
 github.com/microsoft/kiota-authentication-azure-go v0.5.0/go.mod h1:1Io6h+88FlDRmrajdjSnXPz8oyObUVjNuQZLhrF9kQk=
 github.com/microsoft/kiota-http-go v0.10.0 h1:hJwIMkZqgPwRsoZfV5hC4O2OeMvPEZDuhTcyI7Xx3IM=
 github.com/microsoft/kiota-http-go v0.10.0/go.mod h1:qr6x7O4SkEJiFVtnlwvNXapwmtJ85ifAiuqOYkKc7hY=
+github.com/microsoft/kiota-http-go v0.13.0 h1:CZSC+UrBSwjIvLlVh+AEPsDbD0c17AWd/QPRHIljd8k=
+github.com/microsoft/kiota-http-go v0.13.0/go.mod h1:aWtBlFhCetH0JmouvN3hiSaJoqCEdVHPqlrcLYExs3k=
 github.com/microsoft/kiota-serialization-form-go v0.2.0 h1:jgPE+8DtrWhL+KwnAwRm13HnMNydbelC/NP9wRGwDUo=
 github.com/microsoft/kiota-serialization-form-go v0.2.0/go.mod h1:chOuh09tO7IrNtubAumdlG5wnrcYdMkjV7joVVGDyGs=
 github.com/microsoft/kiota-serialization-json-go v0.7.2 h1:DSb4fNDi5O+DqJwrHo+vRy2kSvfxG5VtN6m1EHzn5Vw=
@@ -241,8 +245,12 @@ github.com/microsoftgraph/msgraph-sdk-go v0.50.0 h1:yfPBDr7+tSdq8jKiNCvY5XzQji1k
 github.com/microsoftgraph/msgraph-sdk-go v0.50.0/go.mod h1:XoTT9lzRSersVV4/lsFup3sOLfOLEf2dMsLckiAAKq8=
 github.com/microsoftgraph/msgraph-sdk-go v0.51.0 h1:RUgQLD/5PahdDn2Xjz9Yfc4KW9ovnRZdoypAXcMxqok=
 github.com/microsoftgraph/msgraph-sdk-go v0.51.0/go.mod h1:e5MQ60rEKfWMmlgp4UXMcBi4ATZ3uwGUCixaQUOTG28=
+github.com/microsoftgraph/msgraph-sdk-go v0.52.0 h1:hcFSvgxsN6xG9xGC/Y8jFasU+99OleAVZJb8rKBuISg=
+github.com/microsoftgraph/msgraph-sdk-go v0.52.0/go.mod h1:RF7cVKAu0EZUmNxXZZ6orJJml02Cf85d1FFOxJ+nbRg=
 github.com/microsoftgraph/msgraph-sdk-go-core v0.31.1 h1:aVvnO5l8qLCEcvELc5n9grt7UXhAVtpog1QeQKLMlTE=
 github.com/microsoftgraph/msgraph-sdk-go-core v0.31.1/go.mod h1:RE4F2qGCTehGtQGc9Txafc4l+XMpbjYuO4amDLFgOWE=
+github.com/microsoftgraph/msgraph-sdk-go-core v0.32.0 h1:JpyvtJBMD+FYoKhmHrQONQGbtG51jVf8VeZCfS6UEpo=
+github.com/microsoftgraph/msgraph-sdk-go-core v0.32.0/go.mod h1:DoMfPMJgoVHUa/nx1c1o8tcyVoRiikv6BoPcenxEcRQ=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
