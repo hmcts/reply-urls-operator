@@ -13,9 +13,9 @@ require (
 	github.com/onsi/gomega v1.25.0
 	github.com/sykesm/zap-logfmt v0.0.4
 	go.uber.org/zap v1.24.0
-	k8s.io/api v0.26.0
-	k8s.io/apimachinery v0.26.0
-	k8s.io/client-go v0.26.0
+	k8s.io/api v0.26.1
+	k8s.io/apimachinery v0.26.1
+	k8s.io/client-go v0.26.1
 	k8s.io/utils v0.0.0-20230115233650-391b47cb4029
 	sigs.k8s.io/controller-runtime v0.14.1
 )
