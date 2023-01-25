@@ -10,7 +10,7 @@ require (
 	github.com/microsoft/kiota-authentication-azure-go v0.6.0
 	github.com/microsoftgraph/msgraph-sdk-go v0.52.0
 	github.com/onsi/ginkgo/v2 v2.7.0
-	github.com/onsi/gomega v1.25.0
+	github.com/onsi/gomega v1.26.0
 	github.com/sykesm/zap-logfmt v0.0.4
 	go.uber.org/zap v1.24.0
 	k8s.io/api v0.26.1
