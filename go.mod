@@ -8,7 +8,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/keyvault/azsecrets v0.11.0
 	github.com/go-openapi/swag v0.22.3
 	github.com/microsoft/kiota-authentication-azure-go v0.6.0
-	github.com/microsoftgraph/msgraph-sdk-go v0.54.0
+	github.com/microsoftgraph/msgraph-sdk-go v0.55.0
 	github.com/onsi/ginkgo/v2 v2.7.0
 	github.com/onsi/gomega v1.26.0
 	github.com/sykesm/zap-logfmt v0.0.4
@@ -53,7 +53,7 @@ require (
 	github.com/microsoft/kiota-abstractions-go v0.17.0 // indirect
 	github.com/microsoft/kiota-http-go v0.14.0 // indirect
 	github.com/microsoft/kiota-serialization-form-go v0.3.0 // indirect
-	github.com/microsoft/kiota-serialization-json-go v0.8.0 // indirect
+	github.com/microsoft/kiota-serialization-json-go v0.8.1 // indirect
 	github.com/microsoft/kiota-serialization-text-go v0.7.0 // indirect
 	github.com/microsoftgraph/msgraph-sdk-go-core v0.33.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
